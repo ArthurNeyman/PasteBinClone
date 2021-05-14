@@ -46,3 +46,5 @@ This is a clone of the Pastebin service, which allows you to publish code posts.
   Информация о реализации:
         
                 -Авторизация осуществялется с попомщью JWT.
+                - Миграции с помощью FlyWay
+                - 
