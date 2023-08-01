@@ -1,4 +1,4 @@
-# PasteBeanClone
+# PasteBinClone
 This is a clone of the Pastebin service, which allows you to publish code posts.
 
 Нужно спроектировать и реализовать бэкенд (REST API) для сервиса аналогичного pastebin.com — сервис позволяет заливать куски текста/кода ("пасту") и получать на них короткую ссылку, которую можно отправить другим людям.
@@ -38,7 +38,7 @@ This is a clone of the Pastebin service, which allows you to publish code posts.
 **Поробности реализации**
 
   На данный момент  возможности пользователей выглядят следующим образом :
-  ![PasteBeanClone](https://user-images.githubusercontent.com/59206194/118065190-c5e5cb80-b3c6-11eb-8f59-7220fd24d123.png)
+  ![PasteBinClone](https://user-images.githubusercontent.com/59206194/118065190-c5e5cb80-b3c6-11eb-8f59-7220fd24d123.png)
 
   Возможности администратора пока не реализованы !!!
  
