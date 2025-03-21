@@ -11,9 +11,9 @@
 
     <groupId>com.paste_bin_clone</groupId>
     <artifactId>paste_bin_clone</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>paste_bin_clone</name>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <description>Clone of PasteBinService</description>
 
@@ -44,6 +44,7 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+            <version>1.18.20</version>
         </dependency>
 
         <dependency>

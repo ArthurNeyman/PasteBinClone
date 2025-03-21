@@ -15,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("paste")
 @Slf4j
+@CrossOrigin
 public class PasteController {
 
     @Autowired

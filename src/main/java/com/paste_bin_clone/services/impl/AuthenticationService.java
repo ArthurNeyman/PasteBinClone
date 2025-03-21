@@ -62,7 +62,6 @@ public class AuthenticationService {
             );
             res.addMessage("Регистрация прошла успешно");
         } catch (Exception e) {
-            log.error("", e);
             res.setStatus(HttpStatus.BAD_REQUEST);
             res.addMessage(e.getMessage());
         }

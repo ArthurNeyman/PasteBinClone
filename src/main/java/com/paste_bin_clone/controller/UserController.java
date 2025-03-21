@@ -19,6 +19,7 @@ import java.util.List;
 //Доступно авторизированным пользователям
 @RestController
 @RequestMapping("user")
+@CrossOrigin
 @Slf4j
 public class UserController {
 
