@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface PasteRepository extends JpaRepository<PasteEntity,Long> {
 
-    List<PasteEntity> findFirst10ByAccessIdAndDeadTimeAfterOrderByDateCreate(long accessId, LocalDateTime deadTime);
+    List<PasteEntity> findFirst10ByAccessAndDeadTimeAfterOrderByDateCreate(String access, LocalDateTime deadTime);
     PasteEntity findByHashCodeAndDeadTimeAfter(String hashCode,LocalDateTime deadTime);
     PasteEntity findByHashCode(String hashCode);
     List<PasteEntity> findByUser(UserEntity user);

@@ -2,6 +2,8 @@ package com.paste_bin_clone.services.impl;
 
 import com.paste_bin_clone.dto.*;
 import com.paste_bin_clone.entities.*;
+import com.paste_bin_clone.other.ACCESS_LEVEL;
+import com.paste_bin_clone.other.LIFETIME;
 import com.paste_bin_clone.repositories.AccessRepository;
 import com.paste_bin_clone.repositories.LifeTimeRepository;
 import com.paste_bin_clone.repositories.PasteRepository;
@@ -40,9 +42,9 @@ public class MapperService implements IMapperService {
             pasteEntity.setDateCreate(pasteDTO.getDateCreate());
             pasteEntity.setDeadTime(pasteDTO.getDeadTime());
             pasteEntity.setHashCode(pasteDTO.getHashCode());
-            pasteEntity.setAccess(accessRepository.findById(pasteDTO.getAccessId()).get());
+            pasteEntity.setAccess(pasteDTO.getAccess().toString());
             pasteEntity.setDescription(pasteDTO.getDescription());
-            pasteEntity.setLifetime(lifeTimeRepository.findById(pasteDTO.getLifetimeId()).get());
+            pasteEntity.setLifetime(pasteDTO.getLifetime().toString());
             pasteEntity.setName(pasteDTO.getName());
 
             List<CommentEntity> commentEntities = new ArrayList<>();
@@ -109,16 +111,20 @@ public class MapperService implements IMapperService {
             pasteDTO.setDateCreate(pasteEntity.getDateCreate());
             pasteDTO.setDeadTime(pasteEntity.getDeadTime());
             pasteDTO.setHashCode(pasteEntity.getHashCode());
-            pasteDTO.setAccessId(pasteEntity.getAccess().getId());
+            pasteDTO.setAccess(ACCESS_LEVEL.valueOf(pasteEntity.getAccess()));
             pasteDTO.setDescription(pasteEntity.getDescription());
-            pasteDTO.setLifetimeId(pasteEntity.getLifetime().getId());
+            pasteDTO.setLifetime(LIFETIME.valueOf(pasteEntity.getLifetime()));
             pasteDTO.setName(pasteEntity.getName());
 
-            pasteDTO.setComments(pasteEntity
-                    .getComments()
-                    .stream()
-                    .map(commentEntity -> (CommentDTO) this.toDTO(commentEntity))
-                    .collect(Collectors.toList()));
+//            if (pasteEntity.getComments() != null) {
+//                pasteDTO.setComments(
+//                        pasteEntity
+//                                .getComments()
+//                                .stream()
+//                                .map(commentEntity -> (CommentDTO) this.toDTO(commentEntity))
+//                                .collect(Collectors.toList()));
+//            }
+
 
             UserEntity user = pasteEntity.getUser();
             pasteDTO.setUser((UserDTO) this.toDTO(user));

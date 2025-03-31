@@ -1,9 +1,10 @@
 package com.paste_bin_clone.dto;
 
+import com.paste_bin_clone.other.ACCESS_LEVEL;
+import com.paste_bin_clone.other.LIFETIME;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -17,9 +18,9 @@ public class PasteDTO {
 
     private String name;
 
-    private long accessId;
+    private ACCESS_LEVEL access;
 
-    private long lifetimeId;
+    private LIFETIME lifetime;
 
     private LocalDateTime deadTime;
 
@@ -28,4 +29,5 @@ public class PasteDTO {
     private List<CommentDTO> comments;
 
     private UserDTO user;
+
 }

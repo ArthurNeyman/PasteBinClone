@@ -2,8 +2,11 @@ package com.paste_bin_clone.services.impl;
 
 import com.paste_bin_clone.dto.*;
 import com.paste_bin_clone.entities.CommentEntity;
-import com.paste_bin_clone.entities.LifeTimeEntity;
 import com.paste_bin_clone.entities.PasteEntity;
+import com.paste_bin_clone.other.ACCESS_LEVEL;
+import com.paste_bin_clone.other.ApplicationError;
+import com.paste_bin_clone.other.ERRORS;
+import com.paste_bin_clone.other.LIFETIME;
 import com.paste_bin_clone.repositories.*;
 import com.paste_bin_clone.services.IMapperService;
 import com.paste_bin_clone.services.IPasteService;
@@ -15,14 +18,13 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Function;
 
 @Service
 public class PasteService implements IPasteService {
 
     @Autowired
     private PasteRepository pasteRepository;
-    @Autowired
-    private LifeTimeRepository lifeTimeRepository;
     @Autowired
     private AccessRepository accessRepository;
     @Autowired
@@ -39,12 +41,8 @@ public class PasteService implements IPasteService {
     //------------------------------------------------------------------------------------------------------------------
 
     //Получить список доступных вариантов времени жизни пасты
-    public List<LifeTimeDTO> getLifeTimeList() {
-
-        List<LifeTimeDTO> lifeTimeDTOS = new ArrayList<>();
-        lifeTimeRepository.findAll().forEach(el -> lifeTimeDTOS.add((LifeTimeDTO) mapper.toDTO(el)));
-
-        return lifeTimeDTOS;
+    public Map<LIFETIME, String> getLifeTimeList() {
+        return LIFETIME.getLifTimes();
     }
 
     //Получить список вариантов доступа к пастам
@@ -60,19 +58,25 @@ public class PasteService implements IPasteService {
     public List<PasteDTO> getLastTenPastes() {
 
         List<PasteDTO> list = new ArrayList<>();
-        pasteRepository.findFirst10ByAccessIdAndDeadTimeAfterOrderByDateCreate(1, LocalDateTime.now())
+        pasteRepository.findFirst10ByAccessAndDeadTimeAfterOrderByDateCreate(ACCESS_LEVEL.PUBLIC.toString(), LocalDateTime.now())
                 .forEach(el -> list.add((PasteDTO) mapper.toDTO(el)));
         return list;
     }
 
     //Сохранить пасту
     public PasteDTO savePaste(PasteDTO pasteDTO) {
+
+        checkValidPaste(pasteDTO);
+
         LocalDateTime time = LocalDateTime.now();
+
         pasteDTO.setDateCreate(time);
-        Optional<LifeTimeEntity> lifeTimeValue = lifeTimeRepository.findById(pasteDTO.getLifetimeId());
-        pasteDTO.setDeadTime(time.plusMinutes(lifeTimeValue.get().getMinutes()));
+
+        pasteDTO.setDeadTime(time.plusMinutes(pasteDTO.getLifetime().getMinutes()));
+
         pasteDTO.setHashCode(getHashCode());
-        return (PasteDTO) mapper.toDTO(pasteRepository.save(mapper.toEntity(pasteDTO, PasteEntity.class)));
+        PasteEntity entity = pasteRepository.save(mapper.toEntity(pasteDTO, PasteEntity.class));
+        return (PasteDTO) mapper.toDTO(entity);
     }
 
     //Пoлучить пасту по Хэшкоду
@@ -142,5 +146,28 @@ public class PasteService implements IPasteService {
         }
 
         return r.toString();
+    }
+
+    private void checkValidPaste(PasteDTO pasteDTO) throws ApplicationError {
+
+        ApplicationError error = new ApplicationError();
+
+        ERRORS errorEnumValue = ERRORS.EMPTY_REQUIRED_FIELD;
+
+        if (pasteDTO.getName() == null || pasteDTO.getName().isEmpty()) {
+            error.add(errorEnumValue, "name");
+        }
+        if (pasteDTO.getDescription() == null || pasteDTO.getDescription().isEmpty()) {
+            error.add(errorEnumValue, "description");
+        }
+        if (pasteDTO.getLifetime() == null) {
+            error.add(errorEnumValue, "lifetime");
+        }
+        if (pasteDTO.getAccess() == null) {
+            error.add(errorEnumValue, "access");
+        }
+        if (!error.getErrors().isEmpty()) {
+            throw error;
+        }
     }
 }

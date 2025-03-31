@@ -1,8 +1,15 @@
 package com.paste_bin_clone.config;
 
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.springframework.core.annotation.Order;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Testcontainers
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Order(1)
 public class DatabaseSetupExtension implements BeforeAllCallback {
 
     @Override

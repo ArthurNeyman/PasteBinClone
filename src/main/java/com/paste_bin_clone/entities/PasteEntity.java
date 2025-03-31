@@ -1,5 +1,7 @@
 package com.paste_bin_clone.entities;
 
+import com.paste_bin_clone.other.ACCESS_LEVEL;
+import com.paste_bin_clone.other.LIFETIME;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -23,13 +25,11 @@ public class PasteEntity {
     @Column(name = "date_create")
     private LocalDateTime dateCreate;
 
-    @ManyToOne
-    @JoinColumn(name = "access_id", nullable = false)
-    private AccessEntity access;
+    @Column(name = "access")
+    private String access;
 
-    @ManyToOne
-    @JoinColumn(name = "lifetime_id", nullable = false)
-    private LifeTimeEntity lifetime;
+    @Column(name = "lifetime")
+    private String lifetime;
 
     @Column(name = "dead_time")
     private LocalDateTime deadTime;

@@ -2,14 +2,15 @@ package com.paste_bin_clone.services;
 
 import com.paste_bin_clone.dto.AccessDTO;
 import com.paste_bin_clone.dto.CommentDTO;
-import com.paste_bin_clone.dto.LifeTimeDTO;
 import com.paste_bin_clone.dto.PasteDTO;
+import com.paste_bin_clone.other.LIFETIME;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IPasteService {
 
-    List<LifeTimeDTO> getLifeTimeList();
+    Map<LIFETIME, String> getLifeTimeList();
 
     List<AccessDTO> getAccessList();
 
@@ -17,7 +18,7 @@ public interface IPasteService {
 
     PasteDTO savePaste(PasteDTO pasteDTO);
 
-    PasteDTO getPaste(String hashCod);
+    PasteDTO getPaste(String hashCode);
 
     PasteDTO getPasteByHashCode(String hashCod);
 
