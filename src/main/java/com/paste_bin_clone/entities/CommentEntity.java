@@ -19,12 +19,10 @@ public class CommentEntity {
 
     private String text;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = PasteEntity.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "paste_id")
-    private PasteEntity paste;
+    @Column (name = "paste_id")
+    private long pasteId;
 
+    @Column (name = "user_id")
+    private long userId;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = UserEntity.class)
-    @JoinColumn(name = "user_id")
-    private UserEntity user;
 }

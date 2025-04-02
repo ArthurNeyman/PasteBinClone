@@ -9,6 +9,7 @@ import javax.persistence.*;
 @Table(name="lifetime")
 @Data
 @Accessors(chain = true)
+@Deprecated
 public class LifeTimeEntity {
 
     @GeneratedValue(strategy = GenerationType.AUTO)

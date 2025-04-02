@@ -4,34 +4,15 @@ import com.paste_bin_clone.dto.*;
 import com.paste_bin_clone.entities.*;
 import com.paste_bin_clone.other.ACCESS_LEVEL;
 import com.paste_bin_clone.other.LIFETIME;
-import com.paste_bin_clone.repositories.AccessRepository;
-import com.paste_bin_clone.repositories.LifeTimeRepository;
-import com.paste_bin_clone.repositories.PasteRepository;
-import com.paste_bin_clone.repositories.UserRepository;
-import com.paste_bin_clone.services.IMapperService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
-public class MapperService implements IMapperService {
+public class MapperService {
 
-    @Autowired
-    private PasteRepository pasteRepository;
-
-    @Autowired
-    private AccessRepository accessRepository;
-
-    @Autowired
-    private LifeTimeRepository lifeTimeRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    public <T, S> S toEntity(T dto, Class<S> toEntityClass) {
+    public <T, S> S toEntity(T dto, Class<S> toEntityClass, UserDTO user) {
 
         if (dto instanceof PasteDTO) {
 
@@ -47,41 +28,27 @@ public class MapperService implements IMapperService {
             pasteEntity.setLifetime(pasteDTO.getLifetime().toString());
             pasteEntity.setName(pasteDTO.getName());
 
+            if (pasteDTO.getUser() != null)
+                pasteEntity.setUser(this.toEntity(((PasteDTO) dto).getUser(), UserEntity.class, user));
+            else pasteEntity.setUser(null);
+
             List<CommentEntity> commentEntities = new ArrayList<>();
             if (pasteDTO.getComments() != null) {
-                pasteDTO.getComments().forEach(el -> commentEntities.add(this.toEntity(el, CommentEntity.class)));
+                pasteDTO.getComments().forEach(el -> commentEntities.add(this.toEntity(el, CommentEntity.class, pasteDTO.getUser())));
                 pasteEntity.setComments(commentEntities);
             } else {
                 pasteEntity.setComments(null);
             }
-            if (pasteDTO.getUser() != null)
-                pasteEntity.setUser(userRepository.findByUserName(pasteDTO.getUser().getUserName()));
-            else pasteEntity.setUser(null);
+
 
             return toEntityClass.cast(pasteEntity);
-        }
-
-        if (dto instanceof AccessDTO) {
-            AccessEntity accessEntity = new AccessEntity();
-            accessEntity.setId(((AccessDTO) dto).getId());
-            accessEntity.setName(((AccessDTO) dto).getName());
-            return toEntityClass.cast(accessEntity);
-
-        }
-
-        if (dto instanceof LifeTimeDTO) {
-            LifeTimeEntity lifetimeEntity = new LifeTimeEntity();
-            lifetimeEntity.setId(((LifeTimeDTO) dto).getId());
-            lifetimeEntity.setMinutes(((LifeTimeDTO) dto).getMinutes());
-            lifetimeEntity.setName(((LifeTimeDTO) dto).getName());
-            return toEntityClass.cast(lifetimeEntity);
         }
 
         if (dto instanceof CommentDTO) {
             CommentEntity commentEntity = new CommentEntity();
             commentEntity.setId(((CommentDTO) dto).getId());
-            commentEntity.setPaste(pasteRepository.getOne(((CommentDTO) dto).getPasteId()));
-            commentEntity.setUser(userRepository.findByUserName(((CommentDTO) dto).getUserName()));
+            commentEntity.setPasteId(((CommentDTO) dto).getPasteId());
+            commentEntity.setUserId(user.getUserId());
             commentEntity.setText(((CommentDTO) dto).getText());
             return toEntityClass.cast(commentEntity);
 
@@ -100,7 +67,7 @@ public class MapperService implements IMapperService {
         return null;
     }
 
-    public <T> Object toDTO(T entity) {
+    public <T> Object toDTO(T entity, UserDTO user) {
 
         if (entity instanceof PasteEntity) {
 
@@ -116,18 +83,8 @@ public class MapperService implements IMapperService {
             pasteDTO.setLifetime(LIFETIME.valueOf(pasteEntity.getLifetime()));
             pasteDTO.setName(pasteEntity.getName());
 
-//            if (pasteEntity.getComments() != null) {
-//                pasteDTO.setComments(
-//                        pasteEntity
-//                                .getComments()
-//                                .stream()
-//                                .map(commentEntity -> (CommentDTO) this.toDTO(commentEntity))
-//                                .collect(Collectors.toList()));
-//            }
-
-
-            UserEntity user = pasteEntity.getUser();
-            pasteDTO.setUser((UserDTO) this.toDTO(user));
+            UserEntity userEntity = pasteEntity.getUser();
+            pasteDTO.setUser((UserDTO) this.toDTO(userEntity, user));
 
             if (pasteEntity.getUser() != null)
                 pasteEntity.getUser().setPassword("");
@@ -135,35 +92,15 @@ public class MapperService implements IMapperService {
             return pasteDTO;
         }
 
-        if (entity instanceof AccessEntity) {
-
-            AccessDTO accessDTO = new AccessDTO();
-
-            accessDTO.setId(((AccessEntity) entity).getId());
-            accessDTO.setName(((AccessEntity) entity).getName());
-
-            return accessDTO;
-        }
-
-        if (entity instanceof LifeTimeEntity) {
-            LifeTimeDTO lifeTimeDTO = new LifeTimeDTO();
-
-            lifeTimeDTO.setId(((LifeTimeEntity) entity).getId());
-            lifeTimeDTO.setMinutes(((LifeTimeEntity) entity).getMinutes());
-            lifeTimeDTO.setName(((LifeTimeEntity) entity).getName());
-
-            return lifeTimeDTO;
-        }
-
         if (entity instanceof CommentEntity) {
             CommentDTO commentDTO = new CommentDTO();
             commentDTO.setId(((CommentEntity) entity).getId());
-            commentDTO.setPasteId(((CommentEntity) entity).getPaste().getId());
+            commentDTO.setPasteId(((CommentEntity) entity).getPasteId());
             commentDTO.setText(((CommentEntity) entity).getText());
 
-            if (((CommentEntity) entity).getUser() != null)
-                commentDTO.setUserName(((CommentEntity) entity).getUser().getUserName());
-            else commentDTO.setUserName("");
+            if (user != null) {
+                commentDTO.setUserName(user.getUserName());
+            } else commentDTO.setUserName("");
             return commentDTO;
         }
 

@@ -9,6 +9,7 @@ import javax.persistence.*;
 @Table(name = "access")
 @Data
 @Accessors(chain = true)
+@Deprecated
 public class AccessEntity {
 
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -1,14 +1,14 @@
 package com.paste_bin_clone.dto;
 
-import com.paste_bin_clone.other.ACCESS_LEVEL;
-import com.paste_bin_clone.other.LIFETIME;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class PasteDTO {
+public class PasteDTO extends PasteSaveDTO {
 
     private long id;
 
@@ -16,15 +16,7 @@ public class PasteDTO {
 
     private LocalDateTime dateCreate;
 
-    private String name;
-
-    private ACCESS_LEVEL access;
-
-    private LIFETIME lifetime;
-
     private LocalDateTime deadTime;
-
-    private String description;
 
     private List<CommentDTO> comments;
 

@@ -5,5 +5,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Deprecated
 public interface LifeTimeRepository extends CrudRepository<LifeTimeEntity,Long> {
 }

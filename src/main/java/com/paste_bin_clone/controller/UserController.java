@@ -4,8 +4,8 @@ import com.paste_bin_clone.dto.PasteDTO;
 import com.paste_bin_clone.dto.ResponseStatusDTO;
 import com.paste_bin_clone.dto.UserDTO;
 import com.paste_bin_clone.security.jwt.JWTUser;
-import com.paste_bin_clone.services.IPasteService;
-import com.paste_bin_clone.services.IUserService;
+import com.paste_bin_clone.services.impl.PasteService;
+import com.paste_bin_clone.services.impl.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,13 +21,13 @@ import java.util.List;
 @RequestMapping("user")
 @CrossOrigin
 @Slf4j
-public class UserController {
+public class UserController extends CommonController {
 
     @Autowired
-    private IPasteService pasteService;
+    private PasteService pasteService;
 
     @Autowired
-    private IUserService userService;
+    private UserService userService;
 
     @GetMapping("/pastes")//получить пасты пользователя
     public ResponseStatusDTO<List<PasteDTO>> getPastes() {
@@ -55,9 +55,12 @@ public class UserController {
     public ResponseStatusDTO<Null> deletePaste(@PathVariable String hashCode) {
 
         ResponseStatusDTO<Null> res = new ResponseStatusDTO<Null>();
+        UserDTO user = getUser();
+        PasteDTO paste = pasteService.getPaste(hashCode, user);
 
         try {
-            if (pasteService.getPaste(hashCode).getUser() != null && userService.getUser().getUserName().equals(pasteService.getPaste(hashCode).getUser().getUserName())) {
+            if (user != null &&
+                    user.getUserName().equals(paste.getUser().getUserName())) {
                 pasteService.deleteByHashCode(hashCode);
                 res.addMessage("Паста удалена");
             } else {
@@ -80,7 +83,7 @@ public class UserController {
         ResponseStatusDTO<PasteDTO> res = new ResponseStatusDTO<PasteDTO>();
 
         try {
-            res.setData(pasteService.savePaste(pasteDTO));
+            res.setData(pasteService.savePaste(pasteDTO, getUser()));
             res.addMessage("Паста изменена");
         } catch (Exception e) {
             res.setStatus(HttpStatus.BAD_REQUEST);

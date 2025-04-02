@@ -1,7 +1,5 @@
 package com.paste_bin_clone.entities;
 
-import com.paste_bin_clone.other.ACCESS_LEVEL;
-import com.paste_bin_clone.other.LIFETIME;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -34,7 +32,7 @@ public class PasteEntity {
     @Column(name = "dead_time")
     private LocalDateTime deadTime;
 
-    @OneToMany(mappedBy = "paste", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "pasteId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CommentEntity> comments;
 
     @ManyToOne

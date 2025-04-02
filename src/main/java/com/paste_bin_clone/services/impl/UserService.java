@@ -6,23 +6,19 @@ import com.paste_bin_clone.entities.UserEntity;
 import com.paste_bin_clone.repositories.PasteRepository;
 import com.paste_bin_clone.repositories.RoleRepository;
 import com.paste_bin_clone.repositories.UserRepository;
-import com.paste_bin_clone.security.jwt.JWTUser;
-import com.paste_bin_clone.services.IMapperService;
-import com.paste_bin_clone.services.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
-public class UserService implements IUserService {
+public class UserService {
 
     @Autowired
     private UserRepository userRepository;
@@ -36,48 +32,43 @@ public class UserService implements IUserService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    @Qualifier("mapperService")
     @Autowired
-    private IMapperService mapper;
+    private MapperService mapper;
 
-    @Override
+    public static final ConcurrentHashMap<String, UserDTO> USERS = new ConcurrentHashMap<>();
+
     public UserDTO registration(UserDTO user) {
 
-        try {
+        UserEntity userEntity = mapper.toEntity(user, UserEntity.class, user);
+        userEntity.setPassword(passwordEncoder.encode(user.getPassword()));
+        userEntity.setRoles(Collections.singletonList(roleRepository.findByName("USER")));
+        userEntity = userRepository.save(userEntity);
+        UserDTO userAnswer = (UserDTO) mapper.toDTO(userEntity, user);
+        USERS.put(userAnswer.getUserName(), userAnswer);
+        return userAnswer;
 
-            UserEntity userEntity = mapper.toEntity(user, UserEntity.class);
-            userEntity.setPassword(passwordEncoder.encode(user.getPassword()));
-
-            userEntity.setRoles(Collections.singletonList(roleRepository.findByName("USER")));
-
-            userEntity = userRepository.save(userEntity);
-
-            return (UserDTO) mapper.toDTO(userEntity);
-        } catch (Exception e) {
-            log.error("REGISTRATION ERROR : ", e);
-            return new UserDTO();
-        }
 
     }
 
-    @Override
+
     public UserDTO findByUserName(String userName) {
-        UserDTO user = (UserDTO) mapper.toDTO(userRepository.findByUserName(userName));
+        UserDTO user = (UserDTO) mapper.toDTO(userRepository.findByUserName(userName), null);
         if (user != null) user.setPassword(userRepository.findByUserName(userName).getPassword());
         return user;
     }
 
-    @Override
-    public List<PasteDTO> getPastes() {
+
+    public List<PasteDTO> getPastes(UserDTO user) {
         List<PasteDTO> pasteUserList = new ArrayList<>();
-        pasteRepository.findByUser(userRepository.findByUserName(getUser().getUserName())).forEach(paste -> pasteUserList.add((PasteDTO) mapper.toDTO(paste)));
+        pasteRepository
+                .findByUser(userRepository.findByUserName(user.getUserName()))
+                .forEach(paste -> pasteUserList.add((PasteDTO) mapper.toDTO(paste, user)));
         return pasteUserList;
     }
 
-    @Override
     public boolean changProfile(UserDTO newDataUser) {
 
-        UserDTO oldUser = this.getUser();
+        UserDTO oldUser = this.getUser(newDataUser.getUserName());
 
         if (!oldUser.getUserName().equals(newDataUser.getUserName()))
             if (userRepository.findByUserName(newDataUser.getUserName()) != null)
@@ -88,18 +79,13 @@ public class UserService implements IUserService {
         oldUser.setFirstName(newDataUser.getFirstName());
         oldUser.setLastName(newDataUser.getLastName());
 
-        userRepository.save(mapper.toEntity(oldUser, UserEntity.class));
+        userRepository.save(mapper.toEntity(oldUser, UserEntity.class, newDataUser));
 
         return true;
     }
 
-    public UserDTO getUser() {
-
-        if (!SecurityContextHolder.getContext().getAuthentication().getPrincipal().equals("anonymousUser")) {
-            JWTUser user = (JWTUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            return this.findByUserName(user.getUsername());
-        }
-        return null;
+    public UserDTO getUser(String userName) {
+        return USERS.get(userName);
     }
 
 }

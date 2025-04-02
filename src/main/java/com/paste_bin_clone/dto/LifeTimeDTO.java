@@ -5,6 +5,7 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
+@Deprecated
 public class LifeTimeDTO {
 
     private long id;

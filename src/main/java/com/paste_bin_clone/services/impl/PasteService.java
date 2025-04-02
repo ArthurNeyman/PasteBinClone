@@ -1,27 +1,32 @@
 package com.paste_bin_clone.services.impl;
 
-import com.paste_bin_clone.dto.*;
+import com.paste_bin_clone.dto.CommentDTO;
+import com.paste_bin_clone.dto.PasteDTO;
+import com.paste_bin_clone.dto.PasteSaveDTO;
+import com.paste_bin_clone.dto.UserDTO;
 import com.paste_bin_clone.entities.CommentEntity;
 import com.paste_bin_clone.entities.PasteEntity;
 import com.paste_bin_clone.other.ACCESS_LEVEL;
 import com.paste_bin_clone.other.ApplicationError;
 import com.paste_bin_clone.other.ERRORS;
 import com.paste_bin_clone.other.LIFETIME;
-import com.paste_bin_clone.repositories.*;
-import com.paste_bin_clone.services.IMapperService;
-import com.paste_bin_clone.services.IPasteService;
+import com.paste_bin_clone.repositories.AccessRepository;
+import com.paste_bin_clone.repositories.CommentRepository;
+import com.paste_bin_clone.repositories.PasteRepository;
+import com.paste_bin_clone.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 @Service
-public class PasteService implements IPasteService {
+public class PasteService {
 
     @Autowired
     private PasteRepository pasteRepository;
@@ -32,9 +37,8 @@ public class PasteService implements IPasteService {
     @Autowired
     private CommentRepository commentRepository;
 
-    @Qualifier("mapperService")
     @Autowired
-    private IMapperService mapper;
+    private MapperService mapper;
 
     private PasswordEncoder passwordEncoder;
 
@@ -46,25 +50,22 @@ public class PasteService implements IPasteService {
     }
 
     //Получить список вариантов доступа к пастам
-    public List<AccessDTO> getAccessList() {
-
-        List<AccessDTO> accessDTOS = new ArrayList<>();
-        accessRepository.findAll().forEach(el -> accessDTOS.add((AccessDTO) mapper.toDTO(el)));
-
-        return accessDTOS;
+    public List<ACCESS_LEVEL> getAccessList() {
+        return List.of(ACCESS_LEVEL.values());
     }
 
     //получить 10 последних паст
-    public List<PasteDTO> getLastTenPastes() {
-
+    public List<PasteDTO> getLastTenPastes(UserDTO userDTO) {
         List<PasteDTO> list = new ArrayList<>();
         pasteRepository.findFirst10ByAccessAndDeadTimeAfterOrderByDateCreate(ACCESS_LEVEL.PUBLIC.toString(), LocalDateTime.now())
-                .forEach(el -> list.add((PasteDTO) mapper.toDTO(el)));
+                .forEach(el -> list.add((PasteDTO) mapper.toDTO(el, userDTO)));
         return list;
     }
 
     //Сохранить пасту
-    public PasteDTO savePaste(PasteDTO pasteDTO) {
+    public PasteDTO savePaste(PasteSaveDTO pasteSaveDTO, UserDTO userDTO) {
+
+        PasteDTO pasteDTO = (PasteDTO) pasteSaveDTO;
 
         checkValidPaste(pasteDTO);
 
@@ -75,24 +76,34 @@ public class PasteService implements IPasteService {
         pasteDTO.setDeadTime(time.plusMinutes(pasteDTO.getLifetime().getMinutes()));
 
         pasteDTO.setHashCode(getHashCode());
-        PasteEntity entity = pasteRepository.save(mapper.toEntity(pasteDTO, PasteEntity.class));
-        return (PasteDTO) mapper.toDTO(entity);
+        pasteDTO.setUser(userDTO);
+
+        PasteEntity entity = pasteRepository.save(mapper.toEntity(pasteDTO, PasteEntity.class, userDTO));
+        pasteDTO.setId(entity.getId());
+
+        return pasteDTO;
     }
 
     //Пoлучить пасту по Хэшкоду
     public PasteDTO getPasteByHashCode(String hashCod) {
-        return (PasteDTO) mapper.toDTO(pasteRepository.findByHashCodeAndDeadTimeAfter(hashCod, LocalDateTime.now()));
+        PasteEntity paste = pasteRepository.findByHashCodeAndDeadTimeAfter(hashCod, LocalDateTime.now());
+        return (PasteDTO) mapper.toDTO(paste, null);
     }
 
-    public PasteDTO getPaste(String hashCod) {
-        return (PasteDTO) mapper.toDTO(pasteRepository.findByHashCode(hashCod));
+    public PasteDTO getPaste(String hashCod, UserDTO user) {
+        return (PasteDTO) mapper.toDTO(pasteRepository.findByHashCode(hashCod), user);
     }
 
     //Добавить комментарий к пасте
-    public boolean saveComment(CommentDTO commentDTO) {
-        if (pasteRepository.getOne(commentDTO.getPasteId()).getDeadTime().isAfter(LocalDateTime.now()))
-            return commentRepository.save(mapper.toEntity(commentDTO, CommentEntity.class)) != null;
-        else return false;
+    public CommentDTO saveComment(long pasteId, String commentText, UserDTO user) {
+        CommentDTO commentDTO = new CommentDTO();
+        commentDTO.setPasteId(pasteId);
+        commentDTO.setText(commentText);
+        commentDTO.setUserName(user.getUserName());
+        CommentEntity commentToSave = mapper.toEntity(commentDTO, CommentEntity.class, user);
+        commentToSave = commentRepository.save(commentToSave);
+        commentDTO.setId(commentToSave.getId());
+        return commentDTO;
     }
 
     //Получить все пасты конкретного пользователя
@@ -100,7 +111,7 @@ public class PasteService implements IPasteService {
 
         List<PasteDTO> pasteDTOS = new ArrayList<>();
 
-        pasteRepository.findByUser(userRepository.findByUserName(userName)).forEach(el -> pasteDTOS.add((PasteDTO) mapper.toDTO(el)));
+        pasteRepository.findByUser(userRepository.findByUserName(userName)).forEach(el -> pasteDTOS.add((PasteDTO) mapper.toDTO(el, null)));
 
         return pasteDTOS;
     }
@@ -123,7 +134,7 @@ public class PasteService implements IPasteService {
         pasteRepository
                 .findByNameIgnoreCaseContainingAndDeadTimeAfterOrDescriptionIgnoreCaseContainingAndDeadTimeAfter(
                         searchString, LocalDateTime.now(), searchString, LocalDateTime.now())
-                .forEach(el -> dtos.add((PasteDTO) mapper.toDTO(el)));
+                .forEach(el -> dtos.add((PasteDTO) mapper.toDTO(el, null)));
 
         return dtos;
     }

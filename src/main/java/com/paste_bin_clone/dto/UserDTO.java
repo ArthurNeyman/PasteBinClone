@@ -10,6 +10,8 @@ import java.util.List;
 @Accessors(chain = true)
 public class UserDTO {
 
+    private Long userId;
+
     private String password;
 
     private String userName;

@@ -5,7 +5,6 @@ import com.paste_bin_clone.dto.AuthenticationRequestDTO;
 import com.paste_bin_clone.dto.ResponseStatusDTO;
 import com.paste_bin_clone.dto.UserDTO;
 import com.paste_bin_clone.security.jwt.JwtTokenProvider;
-import com.paste_bin_clone.services.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +22,7 @@ public class AuthenticationService {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private IUserService userService;
+    private UserService userService;
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
