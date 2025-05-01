@@ -3,8 +3,7 @@ package com.paste_bin_clone.controller;
 import com.paste_bin_clone.dto.CommentDTO;
 import com.paste_bin_clone.dto.PasteDTO;
 import com.paste_bin_clone.dto.PasteSaveDTO;
-import com.paste_bin_clone.services.impl.PasteService;
-import com.paste_bin_clone.services.impl.UserService;
+import com.paste_bin_clone.services.PasteService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -37,8 +36,8 @@ public class PasteController extends CommonController {
 
 
     @PostMapping("/addComment")//добавление комментария к пасте
-    public CommentDTO addComment(@PathVariable long pasteId, @PathVariable String text) {
-        return pasteService.saveComment(pasteId, text, null);
+    public CommentDTO addComment(long pasteId, String text) {
+        return pasteService.saveComment(pasteId, text, getUser());
     }
 
     @GetMapping("/search/{str}") //поиск паст по коду или названию

@@ -1,11 +1,14 @@
 package com.paste_bin_clone.security.jwt;
 
+import io.jsonwebtoken.lang.Collections;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
-public class JWTUser implements UserDetails  {
+@Data
+public class JWTUser implements UserDetails {
 
     private final Long id;
     private final String username;
@@ -13,22 +16,22 @@ public class JWTUser implements UserDetails  {
     private final String firstName;
     private final String lastName;
     private final String email;
-    private final Collection<?  extends GrantedAuthority> authorities;
+    private final GrantedAuthority authority;
 
-    public JWTUser(Long id, String username, String password, String firstName, String lastName, String email, Collection<? extends GrantedAuthority> authorities) {
+    public JWTUser(Long id, String username, String password, String firstName, String lastName, String email, GrantedAuthority authority) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.authorities = authorities;
+        this.authority = authority;
     }
 
     @Override
     public Collection
             <? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        return Collections.arrayToList(new GrantedAuthority[]{authority});
     }
 
     @Override
@@ -59,18 +62,6 @@ public class JWTUser implements UserDetails  {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getEmail() {
-        return email;
     }
 
 }

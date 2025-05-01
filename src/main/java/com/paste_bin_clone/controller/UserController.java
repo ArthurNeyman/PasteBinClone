@@ -4,8 +4,8 @@ import com.paste_bin_clone.dto.PasteDTO;
 import com.paste_bin_clone.dto.ResponseStatusDTO;
 import com.paste_bin_clone.dto.UserDTO;
 import com.paste_bin_clone.security.jwt.JWTUser;
-import com.paste_bin_clone.services.impl.PasteService;
-import com.paste_bin_clone.services.impl.UserService;
+import com.paste_bin_clone.services.PasteService;
+import com.paste_bin_clone.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,13 +26,10 @@ public class UserController extends CommonController {
     @Autowired
     private PasteService pasteService;
 
-    @Autowired
-    private UserService userService;
-
     @GetMapping("/pastes")//получить пасты пользователя
     public ResponseStatusDTO<List<PasteDTO>> getPastes() {
 
-        ResponseStatusDTO<List<PasteDTO>> res = new ResponseStatusDTO<List<PasteDTO>>();
+        ResponseStatusDTO<List<PasteDTO>> res = new ResponseStatusDTO<>();
 
         try {
             if (!SecurityContextHolder.getContext().getAuthentication().getPrincipal().equals("anonymousUser")) {
@@ -54,7 +51,7 @@ public class UserController extends CommonController {
     @Transactional
     public ResponseStatusDTO<Null> deletePaste(@PathVariable String hashCode) {
 
-        ResponseStatusDTO<Null> res = new ResponseStatusDTO<Null>();
+        ResponseStatusDTO<Null> res = new ResponseStatusDTO<>();
         UserDTO user = getUser();
         PasteDTO paste = pasteService.getPaste(hashCode, user);
 
@@ -69,7 +66,7 @@ public class UserController extends CommonController {
             }
 
         } catch (Exception e) {
-            System.out.println(e.toString());
+            System.out.println(e);
             res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             res.addMessage("Возникла ошибка при удалении пасты");
         }
@@ -80,7 +77,7 @@ public class UserController extends CommonController {
     @PostMapping("/pastes/save")//Изменить пасту
     public ResponseStatusDTO<PasteDTO> savePaste(@RequestBody PasteDTO pasteDTO) {
 
-        ResponseStatusDTO<PasteDTO> res = new ResponseStatusDTO<PasteDTO>();
+        ResponseStatusDTO<PasteDTO> res = new ResponseStatusDTO<>();
 
         try {
             res.setData(pasteService.savePaste(pasteDTO, getUser()));
@@ -95,8 +92,8 @@ public class UserController extends CommonController {
     //-----------------------------------------------------------
 
     @PostMapping("/change") //изменить профиль
-    public ResponseStatusDTO changeProfile(UserDTO user) {
-        ResponseStatusDTO res = new ResponseStatusDTO();
+    public ResponseStatusDTO<UserDTO> changeProfile(UserDTO user) {
+        ResponseStatusDTO<UserDTO> res = new ResponseStatusDTO<>();
         try {
             res.setData(user);
             res.addMessage("Профиль успешно измененн");

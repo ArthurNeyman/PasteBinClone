@@ -6,7 +6,7 @@ import com.paste_bin_clone.other.ACCESS_LEVEL;
 import com.paste_bin_clone.other.ApplicationError;
 import com.paste_bin_clone.other.ERRORS;
 import com.paste_bin_clone.other.LIFETIME;
-import com.paste_bin_clone.services.impl.PasteService;
+import com.paste_bin_clone.services.PasteService;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,6 +74,12 @@ public class PastControllerTest extends DatabaseSetupExtension {
         error = assertThrows(
                 ApplicationError.class,
                 () -> pasteService.savePaste(testPaste, null), "нет ожидамого исключения при сохранеии пасты без требуемых полей");
+
+        for (String field : error.getErrors().get(ERRORS.EMPTY_REQUIRED_FIELD)) {
+            value = emptyRequiredFields.get(field);
+            value = true;
+        }
+        assertTrue(emptyRequiredFields.values().stream().allMatch(val -> true));
 
         testPaste.setLifetime(LIFETIME.TEN_MINUTES);
         testPaste.setAccess(ACCESS_LEVEL.PUBLIC);

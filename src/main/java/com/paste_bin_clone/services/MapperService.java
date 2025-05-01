@@ -1,9 +1,10 @@
-package com.paste_bin_clone.services.impl;
+package com.paste_bin_clone.services;
 
 import com.paste_bin_clone.dto.*;
 import com.paste_bin_clone.entities.*;
 import com.paste_bin_clone.other.ACCESS_LEVEL;
 import com.paste_bin_clone.other.LIFETIME;
+import com.paste_bin_clone.other.ROLES;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -61,7 +62,8 @@ public class MapperService {
             userEntity.setLastName(((UserDTO) dto).getLastName());
             userEntity.setEmail(((UserDTO) dto).getEmail());
             userEntity.setPassword(((UserDTO) dto).getPassword());
-            userEntity.setRoles(((UserDTO) dto).getRoles());
+            ROLES role = ((UserDTO) dto).getRole();
+            userEntity.setRole(role == null ? ROLES.USER.toString() : role.name());
             return toEntityClass.cast(userEntity);
         }
         return null;
@@ -113,7 +115,7 @@ public class MapperService {
             userDTO.setLastName(((UserEntity) entity).getLastName());
             userDTO.setEmail(((UserEntity) entity).getEmail());
             userDTO.setPassword(((UserEntity) entity).getPassword());
-            userDTO.setRoles(((UserEntity) entity).getRoles());
+            userDTO.setRole(ROLES.valueOf(((UserEntity) entity).getRole()));
 
             return userDTO;
         }

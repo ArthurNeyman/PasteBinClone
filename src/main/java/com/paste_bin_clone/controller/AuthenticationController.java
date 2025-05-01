@@ -4,7 +4,7 @@ import com.paste_bin_clone.dto.AuthenticationRequestAnswerDTO;
 import com.paste_bin_clone.dto.AuthenticationRequestDTO;
 import com.paste_bin_clone.dto.ResponseStatusDTO;
 import com.paste_bin_clone.dto.UserDTO;
-import com.paste_bin_clone.services.impl.AuthenticationService;
+import com.paste_bin_clone.services.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = "auth")
 @CrossOrigin
 public class AuthenticationController {
-
 
     @Autowired
     private AuthenticationService authenticationService;

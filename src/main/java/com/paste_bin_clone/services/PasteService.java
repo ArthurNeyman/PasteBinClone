@@ -1,4 +1,4 @@
-package com.paste_bin_clone.services.impl;
+package com.paste_bin_clone.services;
 
 import com.paste_bin_clone.dto.CommentDTO;
 import com.paste_bin_clone.dto.PasteDTO;
@@ -10,12 +10,10 @@ import com.paste_bin_clone.other.ACCESS_LEVEL;
 import com.paste_bin_clone.other.ApplicationError;
 import com.paste_bin_clone.other.ERRORS;
 import com.paste_bin_clone.other.LIFETIME;
-import com.paste_bin_clone.repositories.AccessRepository;
 import com.paste_bin_clone.repositories.CommentRepository;
 import com.paste_bin_clone.repositories.PasteRepository;
 import com.paste_bin_clone.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -31,16 +29,12 @@ public class PasteService {
     @Autowired
     private PasteRepository pasteRepository;
     @Autowired
-    private AccessRepository accessRepository;
-    @Autowired
     private UserRepository userRepository;
     @Autowired
     private CommentRepository commentRepository;
 
     @Autowired
     private MapperService mapper;
-
-    private PasswordEncoder passwordEncoder;
 
     //------------------------------------------------------------------------------------------------------------------
 

@@ -11,6 +11,7 @@ import javax.persistence.*;
 @JsonIgnoreProperties("users")
 @Data
 @Accessors(chain = true)
+@Deprecated
 public class Role {
 
     @GeneratedValue(strategy = GenerationType.AUTO)

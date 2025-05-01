@@ -1,10 +1,8 @@
 package com.paste_bin_clone.dto;
 
-import com.paste_bin_clone.entities.Role;
+import com.paste_bin_clone.other.ROLES;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.util.List;
 
 @Data
 @Accessors(chain = true)
@@ -20,7 +18,7 @@ public class UserDTO {
 
     private String lastName;
 
-    private List<Role> roles;
+    private ROLES role;
 
     private String email;
 

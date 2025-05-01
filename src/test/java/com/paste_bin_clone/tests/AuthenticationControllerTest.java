@@ -1,20 +1,18 @@
 package com.paste_bin_clone.tests;
 
+import com.paste_bin_clone.config.DatabaseSetupExtension;
+import com.paste_bin_clone.controller.AuthenticationController;
 import com.paste_bin_clone.dto.AuthenticationRequestAnswerDTO;
 import com.paste_bin_clone.dto.AuthenticationRequestDTO;
 import com.paste_bin_clone.dto.ResponseStatusDTO;
 import com.paste_bin_clone.dto.UserDTO;
-import com.paste_bin_clone.controller.AuthenticationController;
-import com.paste_bin_clone.config.DatabaseSetupExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ExtendWith(DatabaseSetupExtension.class)

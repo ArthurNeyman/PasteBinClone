@@ -1,4 +1,4 @@
-package com.paste_bin_clone.services.impl;
+package com.paste_bin_clone.services;
 
 import com.paste_bin_clone.dto.AuthenticationRequestAnswerDTO;
 import com.paste_bin_clone.dto.AuthenticationRequestDTO;
@@ -37,7 +37,7 @@ public class AuthenticationService {
             res.setData(
                     new AuthenticationRequestAnswerDTO()
                             .setUserDTO(user)
-                            .setToken(jwtTokenProvider.createToken(requestDTO.getUserName(), user.getRoles()))
+                            .setToken(jwtTokenProvider.createToken(requestDTO.getUserName(), user.getRole()))
             );
             res.addMessage("Авторизация прошла успешно");
         } catch (AuthenticationException e) {
@@ -57,7 +57,7 @@ public class AuthenticationService {
             res.setData(
                     new AuthenticationRequestAnswerDTO()
                             .setUserDTO(user)
-                            .setToken(jwtTokenProvider.createToken(newUser.getUserName(), newUser.getRoles()))
+                            .setToken(jwtTokenProvider.createToken(newUser.getUserName(), newUser.getRole()))
             );
             res.addMessage("Регистрация прошла успешно");
         } catch (Exception e) {

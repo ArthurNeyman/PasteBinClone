@@ -4,7 +4,7 @@ import com.paste_bin_clone.dto.UserDTO;
 import com.paste_bin_clone.other.ApplicationError;
 import com.paste_bin_clone.other.ERRORS;
 import com.paste_bin_clone.security.jwt.JWTUser;
-import com.paste_bin_clone.services.impl.UserService;
+import com.paste_bin_clone.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;

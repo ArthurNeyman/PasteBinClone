@@ -1,10 +1,10 @@
-package com.paste_bin_clone.services.impl;
+package com.paste_bin_clone.services;
 
 import com.paste_bin_clone.dto.PasteDTO;
 import com.paste_bin_clone.dto.UserDTO;
 import com.paste_bin_clone.entities.UserEntity;
+import com.paste_bin_clone.other.ROLES;
 import com.paste_bin_clone.repositories.PasteRepository;
-import com.paste_bin_clone.repositories.RoleRepository;
 import com.paste_bin_clone.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,9 +21,6 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Autowired
     private PasteRepository pasteRepository;
@@ -41,7 +37,7 @@ public class UserService {
 
         UserEntity userEntity = mapper.toEntity(user, UserEntity.class, user);
         userEntity.setPassword(passwordEncoder.encode(user.getPassword()));
-        userEntity.setRoles(Collections.singletonList(roleRepository.findByName("USER")));
+        userEntity.setRole(ROLES.USER.toString());
         userEntity = userRepository.save(userEntity);
         UserDTO userAnswer = (UserDTO) mapper.toDTO(userEntity, user);
         USERS.put(userAnswer.getUserName(), userAnswer);
@@ -66,7 +62,7 @@ public class UserService {
         return pasteUserList;
     }
 
-    public boolean changProfile(UserDTO newDataUser) {
+    public boolean changeProfile(UserDTO newDataUser) {
 
         UserDTO oldUser = this.getUser(newDataUser.getUserName());
 
