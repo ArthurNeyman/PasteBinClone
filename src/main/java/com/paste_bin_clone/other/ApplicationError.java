@@ -16,8 +16,9 @@ public class ApplicationError extends RuntimeException {
 
     private final Map<ERRORS, ArrayList<String>> errors = new HashMap<>();
 
-    public void add(ERRORS error, String text) {
+    public ApplicationError add(ERRORS error, String text) {
         this.getErrors().computeIfAbsent(error, (val) -> new ArrayList<>()).add(text);
+        return this;
     }
 
 }

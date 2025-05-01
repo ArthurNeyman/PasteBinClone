@@ -21,7 +21,7 @@ public class PasteController extends CommonController {
 
     @PostMapping("/savePaste")//Публикация пасты
     public PasteDTO save(@RequestBody PasteSaveDTO pasteDTO) {
-        return pasteService.savePaste(pasteDTO, null);
+        return pasteService.savePaste(pasteDTO, getUser());
     }
 
     @GetMapping("")//Получить последние 10 паст public

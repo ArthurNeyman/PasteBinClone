@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -29,9 +30,13 @@ public class CommonController {
     public ResponseEntity<String> handleError(HttpServletRequest req, Exception ex) {
         if (ex instanceof ApplicationError) {
             ApplicationError error = (ApplicationError) ex;
-            return toError(error.getMessage(), error.getErrors());
+            return toError(error.getErrors());
         }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if (ex instanceof AuthenticationException) {
+            return toError(Map.of(ERRORS.WRONG_USER_NAME_OR_PASSWORD, ""));
+        }
+        log.error(ex.getMessage(), ex);
+        return toError(Map.of(ERRORS.UNKNOWN_ERROR, ""));
     }
 
     public UserDTO getUser() {
@@ -42,14 +47,13 @@ public class CommonController {
         return null;
     }
 
-    private ResponseEntity<String> toError(String message, Map<ERRORS, ?> params) {
+    private ResponseEntity<String> toError(Map<ERRORS, ?> params) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             return new ResponseEntity<>(
                     new JSONObject()
-                            .put("error", message)
-                            .put("params", new JSONObject(params))
+                            .put("errors", new JSONObject(params))
                             .toString(),
                     headers, HttpStatus.BAD_REQUEST
             );

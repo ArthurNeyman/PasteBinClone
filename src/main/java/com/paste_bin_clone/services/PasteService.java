@@ -59,7 +59,7 @@ public class PasteService {
     //Сохранить пасту
     public PasteDTO savePaste(PasteSaveDTO pasteSaveDTO, UserDTO userDTO) {
 
-        PasteDTO pasteDTO = (PasteDTO) pasteSaveDTO;
+        PasteDTO pasteDTO = new PasteDTO(pasteSaveDTO);
 
         checkValidPaste(pasteDTO);
 

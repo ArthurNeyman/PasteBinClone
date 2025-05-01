@@ -34,7 +34,6 @@ public class UserService {
     public static final ConcurrentHashMap<String, UserDTO> USERS = new ConcurrentHashMap<>();
 
     public UserDTO registration(UserDTO user) {
-
         UserEntity userEntity = mapper.toEntity(user, UserEntity.class, user);
         userEntity.setPassword(passwordEncoder.encode(user.getPassword()));
         userEntity.setRole(ROLES.USER.toString());
@@ -42,14 +41,17 @@ public class UserService {
         UserDTO userAnswer = (UserDTO) mapper.toDTO(userEntity, user);
         USERS.put(userAnswer.getUserName(), userAnswer);
         return userAnswer;
-
-
     }
 
+    public boolean usernameExist(String userName) {
+        return userRepository.userNameExist(userName);
+    }
 
     public UserDTO findByUserName(String userName) {
-        UserDTO user = (UserDTO) mapper.toDTO(userRepository.findByUserName(userName), null);
-        if (user != null) user.setPassword(userRepository.findByUserName(userName).getPassword());
+        UserEntity userEntity = userRepository.findByUserName(userName);
+        UserDTO user = (UserDTO) mapper.toDTO(userEntity, null);
+        if (user != null)
+            user.setPassword(userRepository.findByUserName(userName).getPassword());
         return user;
     }
 

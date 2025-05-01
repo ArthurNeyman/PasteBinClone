@@ -1,7 +1,11 @@
 package com.paste_bin_clone.services;
 
-import com.paste_bin_clone.dto.*;
-import com.paste_bin_clone.entities.*;
+import com.paste_bin_clone.dto.CommentDTO;
+import com.paste_bin_clone.dto.PasteDTO;
+import com.paste_bin_clone.dto.UserDTO;
+import com.paste_bin_clone.entities.CommentEntity;
+import com.paste_bin_clone.entities.PasteEntity;
+import com.paste_bin_clone.entities.UserEntity;
 import com.paste_bin_clone.other.ACCESS_LEVEL;
 import com.paste_bin_clone.other.LIFETIME;
 import com.paste_bin_clone.other.ROLES;
@@ -110,6 +114,7 @@ public class MapperService {
 
             UserDTO userDTO = new UserDTO();
 
+            userDTO.setUserId(((UserEntity) entity).getId());
             userDTO.setUserName(((UserEntity) entity).getUserName());
             userDTO.setFirstName(((UserEntity) entity).getFirstName());
             userDTO.setLastName(((UserEntity) entity).getLastName());

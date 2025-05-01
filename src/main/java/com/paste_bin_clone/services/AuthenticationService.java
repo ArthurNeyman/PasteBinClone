@@ -2,20 +2,16 @@ package com.paste_bin_clone.services;
 
 import com.paste_bin_clone.dto.AuthenticationRequestAnswerDTO;
 import com.paste_bin_clone.dto.AuthenticationRequestDTO;
-import com.paste_bin_clone.dto.ResponseStatusDTO;
 import com.paste_bin_clone.dto.UserDTO;
+import com.paste_bin_clone.other.ApplicationError;
+import com.paste_bin_clone.other.ERRORS;
 import com.paste_bin_clone.security.jwt.JwtTokenProvider;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
-@Slf4j
 public class AuthenticationService {
 
     @Autowired
@@ -27,43 +23,25 @@ public class AuthenticationService {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
-    public ResponseStatusDTO<AuthenticationRequestAnswerDTO> login(@RequestBody AuthenticationRequestDTO requestDTO) {
-
-        ResponseStatusDTO<AuthenticationRequestAnswerDTO> res = new ResponseStatusDTO<>();
-
-        try {
-            UserDTO user = userService.findByUserName(requestDTO.getUserName());
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(requestDTO.getUserName(), requestDTO.getPassword()));
-            res.setData(
-                    new AuthenticationRequestAnswerDTO()
-                            .setUserDTO(user)
-                            .setToken(jwtTokenProvider.createToken(requestDTO.getUserName(), user.getRole()))
-            );
-            res.addMessage("Авторизация прошла успешно");
-        } catch (AuthenticationException e) {
-            res.setStatus(HttpStatus.FORBIDDEN);
-        }
-
-        return res;
+    public AuthenticationRequestAnswerDTO login(AuthenticationRequestDTO requestDTO) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(requestDTO.getUserName(), requestDTO.getPassword()));
+        UserDTO user = userService.findByUserName(requestDTO.getUserName());
+        user.setPassword(requestDTO.getPassword());
+        return new AuthenticationRequestAnswerDTO()
+                .setUserDTO(user)
+                .setToken(jwtTokenProvider.createToken(requestDTO.getUserName(), user.getRole()));
     }
 
+    public AuthenticationRequestAnswerDTO registration(UserDTO user) {
 
-    public ResponseStatusDTO<AuthenticationRequestAnswerDTO> registration(@RequestBody UserDTO user) {
-        ResponseStatusDTO<AuthenticationRequestAnswerDTO> res = new ResponseStatusDTO<>();
-        try {
-            if (userService.findByUserName(user.getUserName()) != null)
-                throw new Exception("Пользователь с таким именем уже существует");
-            UserDTO newUser = userService.registration(user);
-            res.setData(
-                    new AuthenticationRequestAnswerDTO()
-                            .setUserDTO(user)
-                            .setToken(jwtTokenProvider.createToken(newUser.getUserName(), newUser.getRole()))
-            );
-            res.addMessage("Регистрация прошла успешно");
-        } catch (Exception e) {
-            res.setStatus(HttpStatus.BAD_REQUEST);
-            res.addMessage(e.getMessage());
+        if (userService.usernameExist(user.getUserName())) {
+            throw new ApplicationError().add(ERRORS.USER_NAME_ALREADY_EXIST, user.getUserName());
         }
-        return res;
+
+        UserDTO newUser = userService.registration(user);
+
+        return new AuthenticationRequestAnswerDTO()
+                .setUserDTO(newUser)
+                .setToken(jwtTokenProvider.createToken(newUser.getUserName(), newUser.getRole()));
     }
 }
