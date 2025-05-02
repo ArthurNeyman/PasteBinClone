@@ -32,7 +32,7 @@ public class PasteEntity {
     @Column(name = "dead_time")
     private LocalDateTime deadTime;
 
-    @OneToMany(mappedBy = "pasteId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "pasteId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<CommentEntity> comments;
 
     @ManyToOne

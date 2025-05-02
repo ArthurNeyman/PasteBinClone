@@ -4,8 +4,7 @@ public enum ROLES {
 
     USER("Пользователь"),
     ADMIN("Администратор");
-    private final String name;
+
     ROLES(String name) {
-        this.name = name;
     }
 }

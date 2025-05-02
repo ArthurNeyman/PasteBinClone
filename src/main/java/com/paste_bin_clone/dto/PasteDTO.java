@@ -4,12 +4,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class PasteDTO extends PasteSaveDTO {
-
 
     public PasteDTO(PasteSaveDTO pasteSaveDTO) {
         this.setName(pasteSaveDTO.getName());
@@ -29,7 +29,7 @@ public class PasteDTO extends PasteSaveDTO {
 
     private LocalDateTime deadTime;
 
-    private List<CommentDTO> comments;
+    private List<CommentDTO> comments = new ArrayList<>();
 
     private UserDTO user;
 

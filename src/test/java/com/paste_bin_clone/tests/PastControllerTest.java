@@ -101,7 +101,7 @@ public class PastControllerTest extends DatabaseSetupExtension {
     void get() {
         List<PasteDTO> pasteDTOS = new ArrayList<>();
         assertDoesNotThrow(() -> {
-            pasteDTOS.addAll(pasteService.getLastTenPastes(null));
+            pasteDTOS.addAll(pasteService.getLastTenPastes());
         });
         assertEquals(1, pasteDTOS.size());
         PasteDTO paste = pasteDTOS.get(0);

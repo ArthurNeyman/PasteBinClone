@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
-public class UserService {
+public class UserService extends CommonService {
 
     @Autowired
     private UserRepository userRepository;
@@ -28,17 +28,14 @@ public class UserService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    @Autowired
-    private MapperService mapper;
-
     public static final ConcurrentHashMap<String, UserDTO> USERS = new ConcurrentHashMap<>();
 
     public UserDTO registration(UserDTO user) {
-        UserEntity userEntity = mapper.toEntity(user, UserEntity.class, user);
+        UserEntity userEntity = this.convertTo(user, UserEntity.class);
         userEntity.setPassword(passwordEncoder.encode(user.getPassword()));
         userEntity.setRole(ROLES.USER.toString());
         userEntity = userRepository.save(userEntity);
-        UserDTO userAnswer = (UserDTO) mapper.toDTO(userEntity, user);
+        UserDTO userAnswer = this.convertTo(userEntity, UserDTO.class);
         USERS.put(userAnswer.getUserName(), userAnswer);
         return userAnswer;
     }
@@ -49,18 +46,18 @@ public class UserService {
 
     public UserDTO findByUserName(String userName) {
         UserEntity userEntity = userRepository.findByUserName(userName);
-        UserDTO user = (UserDTO) mapper.toDTO(userEntity, null);
-        if (user != null)
-            user.setPassword(userRepository.findByUserName(userName).getPassword());
-        return user;
+        return convertTo(userEntity, UserDTO.class);
     }
 
+    public UserEntity findEntityByUserName(String userName) {
+        return userRepository.findByUserName(userName);
+    }
 
     public List<PasteDTO> getPastes(UserDTO user) {
         List<PasteDTO> pasteUserList = new ArrayList<>();
         pasteRepository
-                .findByUser(userRepository.findByUserName(user.getUserName()))
-                .forEach(paste -> pasteUserList.add((PasteDTO) mapper.toDTO(paste, user)));
+                .findAllByUserId(user.getUserId())
+                .forEach(paste -> pasteUserList.add(convertTo(paste, PasteDTO.class)));
         return pasteUserList;
     }
 
@@ -77,13 +74,13 @@ public class UserService {
         oldUser.setFirstName(newDataUser.getFirstName());
         oldUser.setLastName(newDataUser.getLastName());
 
-        userRepository.save(mapper.toEntity(oldUser, UserEntity.class, newDataUser));
+        userRepository.save(convertTo(oldUser, UserEntity.class));
 
         return true;
     }
 
     public UserDTO getUser(String userName) {
-        return USERS.get(userName);
+        return USERS.computeIfAbsent(userName, val -> convertTo(userRepository.findByUserName(userName), UserDTO.class));
     }
 
 }

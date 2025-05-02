@@ -1,6 +1,5 @@
 package com.paste_bin_clone.security.jwt;
 
-import com.paste_bin_clone.entities.Role;
 import com.paste_bin_clone.other.ROLES;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +14,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
-import java.util.List;
 
 @Component
 public class JwtTokenProvider {
