@@ -14,5 +14,11 @@ public class CommentDTO {
 
     private String text;
 
-    private String userName;
+    private long userId;
+
+    public CommentDTO(long pasteId, String text, long userId) {
+        this.pasteId = pasteId;
+        this.text = text;
+        this.userId = userId;
+    }
 }

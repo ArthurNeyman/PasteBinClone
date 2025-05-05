@@ -4,21 +4,23 @@ import com.paste_bin_clone.entities.PasteEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
+import javax.transaction.Transactional;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public interface PasteRepository extends JpaRepository<PasteEntity, Long> {
 
-    List<PasteEntity> findFirst10ByAccessAndDeadTimeAfterOrderByDateCreate(String access, LocalDateTime deadTime);
+    List<PasteEntity> findFirst10ByAccessAndDeadTimeAfterOrderByDateCreate(String access, Instant deadTime);
 
-    PasteEntity findByHashCodeAndDeadTimeAfter(String hashCode, LocalDateTime deadTime);
+    PasteEntity findByHashCodeAndDeadTimeAfterAndAccessIn(String hashCode, Instant deadTime, ArrayList<String> access);
 
-    PasteEntity findByHashCode(String hashCode);
+    List<PasteEntity> findAllByUserIdOrderByDateCreate(long userId);
 
-    List<PasteEntity> findAllByUserId(long userId);
+    List<PasteEntity> findByNameIgnoreCaseContainingAndDeadTimeAfterOrDescriptionIgnoreCaseContainingAndDeadTimeAfter(String searchString, Instant dateNow1, String searchString1, Instant dateNow);
 
-    List<PasteEntity> findByNameIgnoreCaseContainingAndDeadTimeAfterOrDescriptionIgnoreCaseContainingAndDeadTimeAfter(String searchString, LocalDateTime dateNow1, String searchString1, LocalDateTime dateNow);
-
+    @Transactional
     void deleteByHashCodeAndUserId(String hashCode, long userId);
+
 }

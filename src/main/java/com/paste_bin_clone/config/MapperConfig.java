@@ -15,11 +15,8 @@ import java.util.List;
 public class MapperConfig {
     @Bean
     public ModelMapper getMapper() {
-
         ModelMapper modelMapper = new ModelMapper();
-
         configureUserMapping(modelMapper);
-
         return modelMapper;
     }
 
@@ -32,9 +29,6 @@ public class MapperConfig {
         });
         modelMapper
                 .typeMap(UserEntity.class, UserDTO.class)
-                .addMappings(mapper -> {
-                    mapper.skip(UserDTO::setPassword);
-//                    mapper.skip(UserDTO::setUserId);
-                });
+                .addMappings(mapper -> mapper.skip(UserDTO::setPassword));
     }
 }

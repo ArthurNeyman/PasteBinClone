@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,39 +30,32 @@ public class PasteService extends CommonService {
     @Autowired
     private CommentRepository commentRepository;
 
-    //Получить список доступных вариантов времени жизни пасты
     public Map<LIFETIME, String> getLifeTimeList() {
         return LIFETIME.getLifTimes();
     }
 
-    //Получить список вариантов доступа к пастам
     public Map<ACCESS_LEVEL, Map<String, String>> getAccessList() {
         return ACCESS_LEVEL.getAccessLevelList();
     }
 
-    //получить 10 последних паст
     public List<PasteDTO> getLastTenPastes() {
-
         List<PasteEntity> listEntities =
                 pasteRepository.findFirst10ByAccessAndDeadTimeAfterOrderByDateCreate(
-                        ACCESS_LEVEL.PUBLIC.toString(), LocalDateTime.now()
+                        ACCESS_LEVEL.PUBLIC.toString(), ZonedDateTime.now().toInstant()
                 );
-
-        return convertList(listEntities, (el) -> this.convertTo(el, PasteDTO.class));
+        return convertList(listEntities, (el) -> convertTo(el, PasteDTO.class));
     }
 
-    //Сохранить пасту
     public PasteDTO savePaste(PasteSaveDTO pasteSaveDTO, UserDTO userDTO) {
 
         PasteDTO pasteDTO = new PasteDTO(pasteSaveDTO);
 
         checkValidPaste(pasteDTO);
 
-        LocalDateTime time = LocalDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now();
 
-        pasteDTO.setDateCreate(time);
-
-        pasteDTO.setDeadTime(time.plusMinutes(pasteDTO.getLifetime().getMinutes()));
+        pasteDTO.setDateCreate(now.toInstant());
+        pasteDTO.setDeadTime(now.plusMinutes(pasteDTO.getLifetime().getMinutes()).toInstant());
 
         pasteDTO.setHashCode(getHashCode());
         pasteDTO.setUser(userDTO);
@@ -74,51 +67,32 @@ public class PasteService extends CommonService {
         return pasteDTO;
     }
 
-    //Пoлучить пасту по Хэшкоду
     public PasteDTO getPasteByHashCode(String hashCod) {
-        PasteEntity paste = pasteRepository.findByHashCodeAndDeadTimeAfter(hashCod, LocalDateTime.now());
+        PasteEntity paste =
+                pasteRepository.findByHashCodeAndDeadTimeAfterAndAccessIn(
+                        hashCod,
+                        ZonedDateTime.now().toInstant()
+                        , new ArrayList<>(List.of(ACCESS_LEVEL.PUBLIC.toString(), ACCESS_LEVEL.UNLISTED.toString())));
         return convertTo(paste, PasteDTO.class);
     }
 
-    public PasteDTO getPaste(String hashCod, UserDTO user) {
-        PasteEntity pasteEntity = pasteRepository.findByHashCode(hashCod);
-        return convertTo(pasteEntity, PasteDTO.class);
-    }
-
-    //Добавить комментарий к пасте
-    public CommentDTO saveComment(long pasteId, String commentText, UserDTO user) {
-        CommentDTO commentDTO = new CommentDTO();
-        commentDTO.setPasteId(pasteId);
-        commentDTO.setText(commentText);
-        if (user != null) {
-            commentDTO.setUserName(user.getUserName());
-        }
-        CommentEntity commentToSave = convertTo(commentDTO, CommentEntity.class);
-        commentToSave = commentRepository.save(commentToSave);
+    public CommentDTO addComment(long pasteId, String commentText, UserDTO user) {
+        CommentDTO commentDTO = new CommentDTO(pasteId, commentText, user == null ? 0 : user.getUserId());
+        CommentEntity commentToSave = commentRepository.save(convertTo(commentDTO, CommentEntity.class));
         commentDTO.setId(commentToSave.getId());
         return commentDTO;
     }
 
-    //Получить все пасты конкретного пользователя
-    public List<PasteDTO> getByUser(UserDTO userDTO) {
-        List<PasteDTO> pasteDTOS = new ArrayList<>();
-        pasteRepository.findAllByUserId(userDTO.getUserId())
-                .forEach(el -> pasteDTOS.add(convertTo(el, PasteDTO.class)));
-        return pasteDTOS;
-    }
-
-    //Удалить пасту по Хэш-коду
     public void deleteByHashCode(String hashCode, UserDTO userDTO) {
         pasteRepository.deleteByHashCodeAndUserId(hashCode, userDTO.getUserId());
     }
 
-    //Получить пасты удовлетворяющие поиску
     public List<PasteDTO> searchPastes(String searchString) {
 
         List<PasteDTO> dtos = new ArrayList<>();
         pasteRepository
                 .findByNameIgnoreCaseContainingAndDeadTimeAfterOrDescriptionIgnoreCaseContainingAndDeadTimeAfter(
-                        searchString, LocalDateTime.now(), searchString, LocalDateTime.now())
+                        searchString, ZonedDateTime.now().toInstant(), searchString, ZonedDateTime.now().toInstant())
                 .forEach(el -> dtos.add(convertTo(el, PasteDTO.class)));
 
         return dtos;

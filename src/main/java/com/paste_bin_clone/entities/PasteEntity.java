@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Entity
@@ -17,11 +17,11 @@ public class PasteEntity {
     @Id
     private long id;
 
-    @Column(name = "hash_code")
+    @Column(name = "hash_code", updatable = false)
     private String hashCode;
 
     @Column(name = "date_create")
-    private LocalDateTime dateCreate;
+    private Instant dateCreate;
 
     @Column(name = "access")
     private String access;
@@ -30,7 +30,7 @@ public class PasteEntity {
     private String lifetime;
 
     @Column(name = "dead_time")
-    private LocalDateTime deadTime;
+    private Instant deadTime;
 
     @OneToMany(mappedBy = "pasteId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<CommentEntity> comments;

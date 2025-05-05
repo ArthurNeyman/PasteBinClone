@@ -7,6 +7,8 @@ import lombok.Data;
 @Data
 public class PasteSaveDTO {
 
+    private long id;
+
     private String name;
 
     private String description;
@@ -14,4 +16,5 @@ public class PasteSaveDTO {
     private ACCESS_LEVEL access;
 
     private LIFETIME lifetime;
+
 }

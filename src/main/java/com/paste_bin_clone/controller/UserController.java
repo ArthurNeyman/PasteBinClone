@@ -3,40 +3,38 @@ package com.paste_bin_clone.controller;
 import com.paste_bin_clone.dto.PasteDTO;
 import com.paste_bin_clone.dto.UserDTO;
 import com.paste_bin_clone.services.PasteService;
-import lombok.extern.slf4j.Slf4j;
+import com.paste_bin_clone.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-//Доступно авторизированным пользователям
 @RestController
 @RequestMapping("user")
-@CrossOrigin
-@Slf4j
 public class UserController extends CommonController {
 
     @Autowired
     private PasteService pasteService;
+    @Autowired
+    private UserService userService;
 
-    @GetMapping("/pastes")//получить пасты пользователя
+    @GetMapping("/pastes")
     public List<PasteDTO> getPastes() {
-        return pasteService.getByUser(getUser());
+        return userService.getPastes(getUser());
     }
 
-    @PostMapping("/pastes/delete/{hashCode}")//удалить пасту
+    @PostMapping("/pastes/delete/{hashCode}")
     public void deletePaste(@PathVariable String hashCode) {
         pasteService.deleteByHashCode(hashCode, getUser());
     }
 
-    @PostMapping("/pastes/save")//Изменить пасту
+    @PostMapping("/pastes/save")
     public PasteDTO savePaste(@RequestBody PasteDTO pasteDTO) {
-        return pasteService.savePaste(pasteDTO, getUser());
+        return userService.updatePaste(pasteDTO, getUser());
     }
     //-----------------------------------------------------------
 
     //todo отладить изменение данных пользователя
-    @PostMapping("/change") //изменить профиль
+    @PostMapping("/changeProfile")
     public UserDTO changeProfile(UserDTO user) {
         return user;
     }

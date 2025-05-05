@@ -3,7 +3,7 @@ package com.paste_bin_clone.dto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,18 +16,17 @@ public class PasteDTO extends PasteSaveDTO {
         this.setDescription(pasteSaveDTO.getDescription());
         this.setAccess(pasteSaveDTO.getAccess());
         this.setLifetime(pasteSaveDTO.getLifetime());
+        this.setId(pasteSaveDTO.getId());
     }
 
     public PasteDTO() {
     }
 
-    private long id;
-
     private String hashCode;
 
-    private LocalDateTime dateCreate;
+    private Instant deadTime;
 
-    private LocalDateTime deadTime;
+    private Instant dateCreate;
 
     private List<CommentDTO> comments = new ArrayList<>();
 

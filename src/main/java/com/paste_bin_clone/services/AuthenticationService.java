@@ -24,7 +24,12 @@ public class AuthenticationService {
     private JwtTokenProvider jwtTokenProvider;
 
     public AuthenticationRequestAnswerDTO login(AuthenticationRequestDTO requestDTO) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(requestDTO.getUserName(), requestDTO.getPassword()));
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        requestDTO.getUserName(),
+                        requestDTO.getPassword()
+                )
+        );
         UserDTO user = userService.findByUserName(requestDTO.getUserName());
         return new AuthenticationRequestAnswerDTO()
                 .setUserDTO(user)
