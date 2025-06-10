@@ -2,10 +2,8 @@ package com.paste_bin_clone.dto;
 
 
 import lombok.Data;
-import lombok.experimental.Accessors;
 
 @Data
-@Accessors(chain = true)
 public class CommentDTO {
 
     private long id;
@@ -15,6 +13,9 @@ public class CommentDTO {
     private String text;
 
     private long userId;
+
+    public CommentDTO() {
+    }
 
     public CommentDTO(long pasteId, String text, long userId) {
         this.pasteId = pasteId;

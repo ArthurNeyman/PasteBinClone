@@ -5,6 +5,7 @@ import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -33,7 +34,7 @@ public class PasteEntity {
     private Instant deadTime;
 
     @OneToMany(mappedBy = "pasteId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<CommentEntity> comments;
+    private List<CommentEntity> comments = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "user_id")

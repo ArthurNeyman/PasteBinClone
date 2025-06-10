@@ -24,12 +24,16 @@ public class AuthenticationService {
     private JwtTokenProvider jwtTokenProvider;
 
     public AuthenticationRequestAnswerDTO login(AuthenticationRequestDTO requestDTO) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        requestDTO.getUserName(),
-                        requestDTO.getPassword()
-                )
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            requestDTO.getUserName(),
+                            requestDTO.getPassword()
+                    )
+            );
+        } catch (Exception e) {
+            throw new ApplicationError().add(ERRORS.WRONG_USER_NAME_OR_PASSWORD, "");
+        }
         UserDTO user = userService.findByUserName(requestDTO.getUserName());
         return new AuthenticationRequestAnswerDTO()
                 .setUserDTO(user)

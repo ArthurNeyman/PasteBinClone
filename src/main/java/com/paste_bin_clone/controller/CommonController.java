@@ -13,16 +13,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @Slf4j
-@CrossOrigin
 public class CommonController {
 
     @Autowired
@@ -30,19 +29,22 @@ public class CommonController {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleError(HttpServletRequest req, Exception ex) {
+
         if (ex instanceof ApplicationError) {
             ApplicationError error = (ApplicationError) ex;
             return toError(error.getErrors());
         }
+
         if (ex instanceof AuthenticationException) {
             return toError(Map.of(ERRORS.WRONG_USER_NAME_OR_PASSWORD, ""));
         }
-        log.error(ex.getMessage(), ex);
+
         return toError(Map.of(ERRORS.UNKNOWN_ERROR, ""));
     }
 
     public UserDTO getUser() {
-        if (!SecurityContextHolder.getContext().getAuthentication().getPrincipal().equals("anonymousUser")) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && !authentication.getPrincipal().equals("anonymousUser")) {
             JWTUser user = (JWTUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             return userService.getUser(user.getUsername());
         }

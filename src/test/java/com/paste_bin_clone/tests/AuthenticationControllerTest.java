@@ -2,11 +2,19 @@ package com.paste_bin_clone.tests;
 
 import com.paste_bin_clone.config.DatabaseSetupExtension;
 import com.paste_bin_clone.controller.AuthenticationController;
+import com.paste_bin_clone.dto.AuthenticationRequestAnswerDTO;
+import com.paste_bin_clone.dto.AuthenticationRequestDTO;
 import com.paste_bin_clone.dto.UserDTO;
+import com.paste_bin_clone.other.ApplicationError;
+import com.paste_bin_clone.other.ERRORS;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ExtendWith(DatabaseSetupExtension.class)
@@ -18,31 +26,49 @@ class AuthenticationControllerTest extends DatabaseSetupExtension {
     public static final String TEST_USER_NAME = "testUser";
     public static final String TEST_USER_PASSWORD = "testUserPassword";
 
-    public static final UserDTO testUser = new UserDTO().setUserName(TEST_USER_NAME).setPassword(TEST_USER_PASSWORD);
+    public static final UserDTO testUser = new UserDTO()
+            .setUserName(TEST_USER_NAME)
+            .setPassword(TEST_USER_PASSWORD);
 
     @Test
-    void registrationTest() {
-
-//      AuthenticationRequestAnswerDTO registrationAnswer =
-//                authenticationController.registration(testUser);
-//
-//        ApplicationError error = assertThrows(
-//                ApplicationError.class,
-//                () -> authenticationController.registration(testUser),
-//                "нет ожидаемого исключения при попытке зарегистрироваться под существующим именем пользователя");
-//        assertNotNull(error.getErrors().get(ERRORS.USER_NAME_ALREADY_EXIST));
-//
-//        loginTest();
+    @Order(1)
+    void registrationPositiveTest() {
+        AuthenticationRequestAnswerDTO registrationAnswer =
+                assertDoesNotThrow(() -> authenticationController.registration(testUser));
+        assertEquals(registrationAnswer.getUserDTO().getUserName(), testUser.getUserName());
     }
 
-    void loginTest() {
-//        ResponseStatusDTO<AuthenticationRequestAnswerDTO> loginAnswerCorrect =
-//                authenticationController.login(
-//                        new AuthenticationRequestDTO().setUserName(testUser.getUserName()).setPassword(testUser.getPassword()));
-//        assertEquals(HttpStatus.OK, loginAnswerCorrect.getStatus());
-//        ResponseStatusDTO<AuthenticationRequestAnswerDTO> loginAnswerWrong =
-//                authenticationController.login(
-//                        new AuthenticationRequestDTO().setUserName(testUser.getUserName()).setPassword(testUser.getPassword() + "dfsf"));
-//        assertEquals(HttpStatus.FORBIDDEN, loginAnswerWrong.getStatus());
+    @Test
+    @Order(2)
+    void registrationNegativeDuplicateUserNameTest() {
+        ApplicationError error = assertThrows(
+                ApplicationError.class,
+                () -> authenticationController.registration(testUser),
+                "нет ожидаемого исключения при попытке зарегистрироваться под существующим именем пользователя");
+        assertNotNull(error.getErrors().get(ERRORS.USER_NAME_ALREADY_EXIST));
+    }
+
+    @Test
+    @Order(3)
+    void loginPositiveTest() {
+        AuthenticationRequestAnswerDTO loginAnswerCorrect =
+                assertDoesNotThrow(() -> authenticationController.login(
+                        new AuthenticationRequestDTO()
+                                .setUserName(testUser.getUserName())
+                                .setPassword(testUser.getPassword()))
+                );
+    }
+
+    @Test
+    @Order(4)
+    void loginWrongPasswordTest() {
+        ApplicationError error =
+                assertThrows(
+                        ApplicationError.class, () ->
+                                authenticationController.login(
+                                        new AuthenticationRequestDTO()
+                                                .setUserName(testUser.getUserName())
+                                                .setPassword(testUser.getPassword() + "dfsf"))
+                );
     }
 }
