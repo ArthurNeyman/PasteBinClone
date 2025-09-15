@@ -6,7 +6,6 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class AuthenticationRequestAnswerDTO {
-
     private String token;
     private UserDTO userDTO;
 }

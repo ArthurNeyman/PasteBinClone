@@ -2,12 +2,14 @@ package com.paste_bin_clone.security.jwt;
 
 import io.jsonwebtoken.lang.Collections;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
 @Data
+@RequiredArgsConstructor
 public class JWTUser implements UserDetails {
 
     private final Long id;
@@ -17,16 +19,6 @@ public class JWTUser implements UserDetails {
     private final String lastName;
     private final String email;
     private final GrantedAuthority authority;
-
-    public JWTUser(Long id, String username, String password, String firstName, String lastName, String email, GrantedAuthority authority) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.authority = authority;
-    }
 
     @Override
     public Collection

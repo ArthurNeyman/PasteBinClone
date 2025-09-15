@@ -7,8 +7,7 @@ import com.paste_bin_clone.entities.UserEntity;
 import com.paste_bin_clone.other.ROLES;
 import com.paste_bin_clone.repositories.PasteRepository;
 import com.paste_bin_clone.repositories.UserRepository;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,17 +17,12 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-@Slf4j
+@RequiredArgsConstructor
 public class UserService extends CommonService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasteRepository pasteRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PasteRepository pasteRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public static final ConcurrentHashMap<String, UserDTO> USERS = new ConcurrentHashMap<>();
 

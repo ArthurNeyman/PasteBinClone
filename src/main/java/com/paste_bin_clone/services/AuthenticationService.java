@@ -6,23 +6,21 @@ import com.paste_bin_clone.dto.UserDTO;
 import com.paste_bin_clone.other.ApplicationError;
 import com.paste_bin_clone.other.ERRORS;
 import com.paste_bin_clone.security.jwt.JwtTokenProvider;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class AuthenticationService {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+    private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
+    @Transactional(readOnly = true)
     public AuthenticationRequestAnswerDTO login(AuthenticationRequestDTO requestDTO) {
         try {
             authenticationManager.authenticate(
@@ -39,7 +37,7 @@ public class AuthenticationService {
                 .setUserDTO(user)
                 .setToken(jwtTokenProvider.createToken(requestDTO.getUserName(), user.getRole()));
     }
-
+    @Transactional
     public AuthenticationRequestAnswerDTO registration(UserDTO user) {
 
         if (userService.usernameExist(user.getUserName())) {

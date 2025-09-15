@@ -7,19 +7,11 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class UserDTO {
-
     private Long userId;
-
     private String password;
-
     private String userName;
-
     private String firstName;
-
     private String lastName;
-
     private ROLES role;
-
     private String email;
-
 }

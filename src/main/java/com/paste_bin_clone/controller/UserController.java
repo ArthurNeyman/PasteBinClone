@@ -4,18 +4,22 @@ import com.paste_bin_clone.dto.PasteDTO;
 import com.paste_bin_clone.dto.UserDTO;
 import com.paste_bin_clone.services.PasteService;
 import com.paste_bin_clone.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 @RestController
 @RequestMapping("user")
+@RequiredArgsConstructor
 public class UserController extends CommonController {
 
-    @Autowired
-    private PasteService pasteService;
-    @Autowired
-    private UserService userService;
+    private final PasteService pasteService;
+    private final UserService userService;
 
     @GetMapping("/pastes")
     public List<PasteDTO> getPastes() {

@@ -12,23 +12,21 @@ import com.paste_bin_clone.other.ERRORS;
 import com.paste_bin_clone.other.LIFETIME;
 import com.paste_bin_clone.repositories.CommentRepository;
 import com.paste_bin_clone.repositories.PasteRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 @Service
+@RequiredArgsConstructor
 public class PasteService extends CommonService {
 
-    @Autowired
-    private PasteRepository pasteRepository;
-    @Autowired
-    private CommentRepository commentRepository;
+    private final PasteRepository pasteRepository;
+    private final CommentRepository commentRepository;
+    private final UtilService utilService;
 
     public Map<LIFETIME, String> getLifeTimeList() {
         return LIFETIME.getLifTimes();
@@ -57,7 +55,7 @@ public class PasteService extends CommonService {
         pasteDTO.setDateCreate(now.toInstant());
         pasteDTO.setDeadTime(now.plusMinutes(pasteDTO.getLifetime().getMinutes()).toInstant());
 
-        pasteDTO.setHashCode(getHashCode());
+        pasteDTO.setHashCode(utilService.getHashCode());
         pasteDTO.setUser(userDTO);
 
         PasteEntity entity = pasteRepository.save(convertTo(pasteDTO, PasteEntity.class));
@@ -96,26 +94,6 @@ public class PasteService extends CommonService {
                 .forEach(el -> dtos.add(convertTo(el, PasteDTO.class)));
 
         return dtos;
-    }
-
-    private String getHashCode() {
-
-        byte[] array = new byte[64];
-        new Random().nextBytes(array);
-
-        String randomString = new String(array, StandardCharsets.UTF_8);
-        StringBuffer r = new StringBuffer();
-
-        for (int k = 0; k < randomString.length(); k++) {
-            char ch = randomString.charAt(k);
-            if (((ch >= 'a' && ch <= 'z')
-                    || (ch >= 'A' && ch <= 'Z')
-                    || (ch >= '0' && ch <= '9'))) {
-                r.append(ch);
-            }
-        }
-
-        return r.toString();
     }
 
     private void checkValidPaste(PasteDTO pasteDTO) throws ApplicationError {

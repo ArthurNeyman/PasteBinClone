@@ -1,5 +1,7 @@
 package com.paste_bin_clone.other;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,6 +19,7 @@ public enum ACCESS_LEVEL {
     }
 
 
+    @Getter
     public static final Map<ACCESS_LEVEL, Map<String, String>> accessLevelList =
             Arrays.stream(values())
                     .collect(Collectors.toMap(el -> el, el ->
@@ -24,7 +27,4 @@ public enum ACCESS_LEVEL {
                                     "name", el.name,
                                     "description", el.description)));
 
-    public static Map<ACCESS_LEVEL, Map<String, String>> getAccessLevelList() {
-        return accessLevelList;
-    }
 }

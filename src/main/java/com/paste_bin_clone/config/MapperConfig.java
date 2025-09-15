@@ -13,6 +13,7 @@ import java.util.List;
 
 @Configuration
 public class MapperConfig {
+
     @Bean
     public ModelMapper getMapper() {
         ModelMapper modelMapper = new ModelMapper();

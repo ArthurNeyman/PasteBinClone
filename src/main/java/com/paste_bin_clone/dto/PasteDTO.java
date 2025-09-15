@@ -23,13 +23,8 @@ public class PasteDTO extends PasteSaveDTO {
     }
 
     private String hashCode;
-
     private Instant deadTime;
-
     private Instant dateCreate;
-
     private List<CommentDTO> comments = new ArrayList<>();
-
     private UserDTO user;
-
 }
