@@ -29,16 +29,13 @@ public class CommonController {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleError(HttpServletRequest req, Exception ex) {
-
         if (ex instanceof ApplicationError) {
             ApplicationError error = (ApplicationError) ex;
             return toError(error.getErrors());
         }
-
         if (ex instanceof AuthenticationException) {
             return toError(Map.of(ERRORS.WRONG_USER_NAME_OR_PASSWORD, ""));
         }
-
         return toError(Map.of(ERRORS.UNKNOWN_ERROR, ""));
     }
 

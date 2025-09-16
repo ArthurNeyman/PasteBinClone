@@ -39,13 +39,10 @@ public class AuthenticationService {
     }
     @Transactional
     public AuthenticationRequestAnswerDTO registration(UserDTO user) {
-
         if (userService.usernameExist(user.getUserName())) {
             throw new ApplicationError().add(ERRORS.USER_NAME_ALREADY_EXIST, user.getUserName());
         }
-
         UserDTO newUser = userService.registration(user);
-
         return new AuthenticationRequestAnswerDTO()
                 .setUserDTO(newUser)
                 .setToken(jwtTokenProvider.createToken(newUser.getUserName(), newUser.getRole()));

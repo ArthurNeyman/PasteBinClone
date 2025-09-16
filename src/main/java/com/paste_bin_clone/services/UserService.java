@@ -8,7 +8,6 @@ import com.paste_bin_clone.other.ROLES;
 import com.paste_bin_clone.repositories.PasteRepository;
 import com.paste_bin_clone.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,16 +21,14 @@ public class UserService extends CommonService {
 
     private final UserRepository userRepository;
     private final PasteRepository pasteRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
 
     public static final ConcurrentHashMap<String, UserDTO> USERS = new ConcurrentHashMap<>();
 
     public UserDTO registration(UserDTO user) {
-        UserEntity userEntity = this.convertTo(user, UserEntity.class);
-        userEntity.setPassword(passwordEncoder.encode(user.getPassword()));
+        UserEntity userEntity = convertTo(user, UserEntity.class);
         userEntity.setRole(ROLES.USER.toString());
         userEntity = userRepository.save(userEntity);
-        UserDTO userAnswer = this.convertTo(userEntity, UserDTO.class);
+        UserDTO userAnswer = convertTo(userEntity, UserDTO.class);
         USERS.put(userAnswer.getUserName(), userAnswer);
         return userAnswer;
     }
@@ -65,20 +62,15 @@ public class UserService extends CommonService {
     }
 
     public boolean changeProfile(UserDTO newDataUser) {
-
         UserDTO oldUser = this.getUser(newDataUser.getUserName());
-
         if (!oldUser.getUserName().equals(newDataUser.getUserName()))
             if (userRepository.findByUserName(newDataUser.getUserName()) != null)
                 return false;
-
         oldUser.setUserName(newDataUser.getUserName());
         oldUser.setEmail(newDataUser.getEmail());
         oldUser.setFirstName(newDataUser.getFirstName());
         oldUser.setLastName(newDataUser.getLastName());
-
         userRepository.save(convertTo(oldUser, UserEntity.class));
-
         return true;
     }
 

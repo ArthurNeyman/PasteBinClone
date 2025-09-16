@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends CrudRepository<UserEntity, Long> {
     UserEntity findByUserName(String userName);
-
     @Query(nativeQuery = true,
             value = "select (count(*) > 0) from users where user_name like  ? ")
     boolean userNameExist(String userName);

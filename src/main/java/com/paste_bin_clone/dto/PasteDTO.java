@@ -11,15 +11,15 @@ import java.util.List;
 @Data
 public class PasteDTO extends PasteSaveDTO {
 
+    public PasteDTO() {
+    }
+
     public PasteDTO(PasteSaveDTO pasteSaveDTO) {
         this.setName(pasteSaveDTO.getName());
         this.setDescription(pasteSaveDTO.getDescription());
         this.setAccess(pasteSaveDTO.getAccess());
         this.setLifetime(pasteSaveDTO.getLifetime());
         this.setId(pasteSaveDTO.getId());
-    }
-
-    public PasteDTO() {
     }
 
     private String hashCode;

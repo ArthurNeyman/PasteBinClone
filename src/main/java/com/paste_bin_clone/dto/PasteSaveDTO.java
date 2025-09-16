@@ -6,11 +6,9 @@ import lombok.Data;
 
 @Data
 public class PasteSaveDTO {
-
     private long id;
     private String name;
     private String description;
     private ACCESS_LEVEL access;
     private LIFETIME lifetime;
-
 }

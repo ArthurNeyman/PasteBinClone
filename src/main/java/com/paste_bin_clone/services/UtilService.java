@@ -3,25 +3,20 @@ package com.paste_bin_clone.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Random;
+import java.security.SecureRandom;
 
 @Service
 @RequiredArgsConstructor
 public class UtilService {
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final String ALLOWED_CHARACTERS =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
     public String getHashCode() {
-        byte[] array = new byte[64];
-        new Random().nextBytes(array);
-        String randomString = new String(array, StandardCharsets.UTF_8);
-        StringBuffer r = new StringBuffer();
-        for (int k = 0; k < randomString.length(); k++) {
-            char ch = randomString.charAt(k);
-            if (((ch >= 'a' && ch <= 'z')
-                || (ch >= 'A' && ch <= 'Z')
-                || (ch >= '0' && ch <= '9'))) {
-                r.append(ch);
-            }
+        StringBuilder result = new StringBuilder(64);
+        for (int i = 0; i < 64; i++) {
+            int randomIndex = SECURE_RANDOM.nextInt(ALLOWED_CHARACTERS.length());
+            result.append(ALLOWED_CHARACTERS.charAt(randomIndex));
         }
-        return r.toString();
+        return result.toString();
     }
 }
