@@ -6,7 +6,7 @@ import com.paste_bin_clone.dto.PasteSaveDTO;
 import com.paste_bin_clone.dto.UserDTO;
 import com.paste_bin_clone.entities.CommentEntity;
 import com.paste_bin_clone.entities.PasteEntity;
-import com.paste_bin_clone.other.ACCESS_LEVEL;
+import com.paste_bin_clone.other.AccessLevel;
 import com.paste_bin_clone.other.ApplicationError;
 import com.paste_bin_clone.other.ERRORS;
 import com.paste_bin_clone.other.LIFETIME;
@@ -32,14 +32,14 @@ public class PasteService extends CommonService {
         return LIFETIME.getLifTimes();
     }
 
-    public Map<ACCESS_LEVEL, Map<String, String>> getAccessList() {
-        return ACCESS_LEVEL.getAccessLevelList();
+    public Map<AccessLevel, Map<String, String>> getAccessList() {
+        return AccessLevel.getAccessLevelList();
     }
 
     public List<PasteDTO> getLastTenPastes() {
         List<PasteEntity> listEntities =
                 pasteRepository.findFirst10ByAccessAndDeadTimeAfterOrderByDateCreate(
-                        ACCESS_LEVEL.PUBLIC.toString(), ZonedDateTime.now().toInstant()
+                        AccessLevel.PUBLIC.toString(), ZonedDateTime.now().toInstant()
                 );
         return convertList(listEntities, (el) -> convertTo(el, PasteDTO.class));
     }
@@ -70,7 +70,7 @@ public class PasteService extends CommonService {
                 pasteRepository.findByHashCodeAndDeadTimeAfterAndAccessIn(
                         hashCod,
                         ZonedDateTime.now().toInstant()
-                        , new ArrayList<>(List.of(ACCESS_LEVEL.PUBLIC.toString(), ACCESS_LEVEL.UNLISTED.toString())));
+                        , new ArrayList<>(List.of(AccessLevel.PUBLIC.toString(), AccessLevel.UNLISTED.toString())));
         return convertTo(paste, PasteDTO.class);
     }
 

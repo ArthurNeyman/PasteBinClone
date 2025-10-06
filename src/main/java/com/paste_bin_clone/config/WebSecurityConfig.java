@@ -18,7 +18,9 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements WebMvcConfigurer {
+public class WebSecurityConfig
+    extends WebSecurityConfigurerAdapter
+    implements WebMvcConfigurer {
 
     private final JwtTokenProvider jwtTokenProvider;
     private static final String ADMIN_ENDPOINT = "/admin/**";
@@ -46,19 +48,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .httpBasic().disable()
-                .cors(Customizer.withDefaults())
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeRequests()
-                .antMatchers(USER_ENDPOINT).hasAnyAuthority("USER", "ADMIN")
-                .antMatchers(ADMIN_ENDPOINT).hasAuthority("ADMIN")
-                .antMatchers(AUTH_ENDPOINT, PASTE_ENDPOINT).permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .apply(new JwtConfigurer(jwtTokenProvider));
+            .csrf().disable()
+            .httpBasic().disable()
+            .cors(Customizer.withDefaults())
+            .sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
+            .authorizeRequests()
+            .antMatchers(USER_ENDPOINT).hasAnyAuthority("USER", "ADMIN")
+            .antMatchers(ADMIN_ENDPOINT).hasAuthority("ADMIN")
+            .antMatchers(AUTH_ENDPOINT, PASTE_ENDPOINT).permitAll()
+            .anyRequest().authenticated()
+            .and()
+            .apply(new JwtConfigurer(jwtTokenProvider));
     }
 
     @Override

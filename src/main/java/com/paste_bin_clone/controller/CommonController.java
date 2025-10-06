@@ -5,13 +5,11 @@ import com.paste_bin_clone.other.ApplicationError;
 import com.paste_bin_clone.other.ERRORS;
 import com.paste_bin_clone.security.jwt.JWTUser;
 import com.paste_bin_clone.services.UserService;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -19,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
 import java.util.Map;
 
 @Slf4j
@@ -28,15 +27,21 @@ public class CommonController {
     private UserService userService;
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleError(HttpServletRequest req, Exception ex) {
+    public ResponseEntity<ErrorResponse> handleError(HttpServletRequest req, Exception ex) {
         if (ex instanceof ApplicationError) {
             ApplicationError error = (ApplicationError) ex;
-            return toError(error.getErrors());
+            return buildErrorResponse(error.getErrors(), HttpStatus.BAD_REQUEST);
         }
         if (ex instanceof AuthenticationException) {
-            return toError(Map.of(ERRORS.WRONG_USER_NAME_OR_PASSWORD, ""));
+            Map<ERRORS, String> authError = Collections.singletonMap(
+                ERRORS.WRONG_USER_NAME_OR_PASSWORD, "Invalid credentials"
+            );
+            return buildErrorResponse(authError, HttpStatus.UNAUTHORIZED);
         }
-        return toError(Map.of(ERRORS.UNKNOWN_ERROR, ""));
+        Map<ERRORS, String> unknownError = Collections.singletonMap(
+            ERRORS.UNKNOWN_ERROR, "An unexpected error"
+        );
+        return buildErrorResponse(unknownError, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     public UserDTO getUser() {
@@ -48,19 +53,23 @@ public class CommonController {
         return null;
     }
 
-    private ResponseEntity<String> toError(Map<ERRORS, ?> params) {
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            return new ResponseEntity<>(
-                    new JSONObject()
-                            .put("errors", new JSONObject(params))
-                            .toString(),
-                    headers, HttpStatus.BAD_REQUEST
-            );
-        } catch (JSONException jsonException) {
-            log.error("JSON exception", jsonException);
+    protected ResponseEntity<ErrorResponse> buildErrorResponse(Map<ERRORS, ?> errors, HttpStatus status) {
+        ErrorResponse errorResponse = new ErrorResponse(errors, status.value());
+        return ResponseEntity.status(status).body(errorResponse);
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class ErrorResponse {
+
+        private final Map<ERRORS, ?> errors;
+        private final int status;
+        private final long timestamp;
+
+        public ErrorResponse(Map<ERRORS, ?> errors, int status) {
+            this.errors = errors;
+            this.status = status;
+            this.timestamp = System.currentTimeMillis();
         }
-        return null;
     }
 }

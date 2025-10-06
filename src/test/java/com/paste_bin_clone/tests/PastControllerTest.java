@@ -4,7 +4,7 @@ import com.paste_bin_clone.config.DatabaseSetupExtension;
 import com.paste_bin_clone.controller.PasteController;
 import com.paste_bin_clone.dto.CommentDTO;
 import com.paste_bin_clone.dto.PasteDTO;
-import com.paste_bin_clone.other.ACCESS_LEVEL;
+import com.paste_bin_clone.other.AccessLevel;
 import com.paste_bin_clone.other.ApplicationError;
 import com.paste_bin_clone.other.ERRORS;
 import com.paste_bin_clone.other.LIFETIME;
@@ -19,7 +19,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ExtendWith(DatabaseSetupExtension.class)
@@ -85,7 +89,7 @@ public class PastControllerTest extends DatabaseSetupExtension {
         assertTrue(emptyRequiredFields.values().stream().allMatch(val -> true));
 
         testPaste.setLifetime(LIFETIME.TEN_MINUTES);
-        testPaste.setAccess(ACCESS_LEVEL.PUBLIC);
+        testPaste.setAccess(AccessLevel.PUBLIC);
 
         PasteDTO pasteDTO = assertDoesNotThrow(
                 () -> pasteController.save(testPaste),
@@ -94,7 +98,7 @@ public class PastControllerTest extends DatabaseSetupExtension {
 
         assertEquals(TEST_PASTE_NAME, pasteDTO.getName());
         assertEquals(TEST_PASTE_DESCRIPTION, pasteDTO.getDescription());
-        assertEquals(ACCESS_LEVEL.PUBLIC, pasteDTO.getAccess());
+        assertEquals(AccessLevel.PUBLIC, pasteDTO.getAccess());
         assertEquals(LIFETIME.TEN_MINUTES, pasteDTO.getLifetime());
         hash_code.append(pasteDTO.getHashCode());
     }
@@ -165,7 +169,7 @@ public class PastControllerTest extends DatabaseSetupExtension {
         return
                 TEST_PASTE_NAME.equals(paste.getName()) &&
                         TEST_PASTE_DESCRIPTION.equals(paste.getDescription()) &&
-                        ACCESS_LEVEL.PUBLIC.equals(paste.getAccess()) &&
+                        AccessLevel.PUBLIC.equals(paste.getAccess()) &&
                         LIFETIME.TEN_MINUTES.equals(paste.getLifetime()) &&
                         hash_code.toString().equals(paste.getHashCode());
     }

@@ -2,8 +2,8 @@ package com.paste_bin_clone.tests;
 
 import com.paste_bin_clone.config.DatabaseSetupExtension;
 import com.paste_bin_clone.controller.AuthenticationController;
-import com.paste_bin_clone.dto.AuthenticationRequestAnswerDTO;
 import com.paste_bin_clone.dto.AuthenticationRequestDTO;
+import com.paste_bin_clone.dto.AuthenticationResponseDTO;
 import com.paste_bin_clone.dto.UserDTO;
 import com.paste_bin_clone.other.ApplicationError;
 import com.paste_bin_clone.other.ERRORS;
@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @ExtendWith(DatabaseSetupExtension.class)
@@ -33,7 +35,7 @@ class AuthenticationControllerTest extends DatabaseSetupExtension {
     @Test
     @Order(1)
     void registrationPositiveTest() {
-        AuthenticationRequestAnswerDTO registrationAnswer =
+        AuthenticationResponseDTO registrationAnswer =
                 assertDoesNotThrow(() -> authenticationController.registration(testUser));
         assertEquals(registrationAnswer.getUserDTO().getUserName(), testUser.getUserName());
     }
@@ -51,7 +53,7 @@ class AuthenticationControllerTest extends DatabaseSetupExtension {
     @Test
     @Order(3)
     void loginPositiveTest() {
-        AuthenticationRequestAnswerDTO loginAnswerCorrect =
+        AuthenticationResponseDTO loginAnswerCorrect =
                 assertDoesNotThrow(() -> authenticationController.login(
                         new AuthenticationRequestDTO()
                                 .setUserName(testUser.getUserName())

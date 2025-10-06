@@ -3,7 +3,7 @@ package com.paste_bin_clone.controller;
 import com.paste_bin_clone.dto.CommentDTO;
 import com.paste_bin_clone.dto.PasteDTO;
 import com.paste_bin_clone.dto.PasteSaveDTO;
-import com.paste_bin_clone.other.ACCESS_LEVEL;
+import com.paste_bin_clone.other.AccessLevel;
 import com.paste_bin_clone.other.LIFETIME;
 import com.paste_bin_clone.services.PasteService;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +56,7 @@ public class PasteController extends CommonController {
     }
 
     @GetMapping("/accessList")
-    public Map<ACCESS_LEVEL, Map<String, String>> getAccessLevels() {
+    public Map<AccessLevel, Map<String, String>> getAccessLevels() {
         return pasteService.getAccessList();
     }
 
