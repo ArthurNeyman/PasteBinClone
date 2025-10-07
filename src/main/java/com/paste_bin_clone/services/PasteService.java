@@ -19,6 +19,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -117,5 +118,11 @@ public class PasteService extends CommonService {
         if (!error.getErrors().isEmpty()) {
             throw error;
         }
+    }
+    public PasteDTO updatePaste(PasteDTO pasteDTO, UserDTO userDTO) {
+        if (Objects.equals(userDTO.getUserId(), pasteDTO.getUser().getUserId())) {
+            pasteRepository.save(convertTo(pasteDTO, PasteEntity.class));
+        }
+        return pasteDTO;
     }
 }

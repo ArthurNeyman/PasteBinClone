@@ -2,7 +2,6 @@ package com.paste_bin_clone.services;
 
 import com.paste_bin_clone.dto.PasteDTO;
 import com.paste_bin_clone.dto.UserDTO;
-import com.paste_bin_clone.entities.PasteEntity;
 import com.paste_bin_clone.entities.UserEntity;
 import com.paste_bin_clone.other.ROLES;
 import com.paste_bin_clone.repositories.PasteRepository;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -49,16 +47,9 @@ public class UserService extends CommonService {
     public List<PasteDTO> getPastes(UserDTO user) {
         List<PasteDTO> pasteUserList = new ArrayList<>();
         pasteRepository
-                .findAllByUserIdOrderByDateCreate(user.getUserId())
-                .forEach(paste -> pasteUserList.add(convertTo(paste, PasteDTO.class)));
+            .findAllByUserIdOrderByDateCreate(user.getUserId())
+            .forEach(paste -> pasteUserList.add(convertTo(paste, PasteDTO.class)));
         return pasteUserList;
-    }
-
-    public PasteDTO updatePaste(PasteDTO pasteDTO, UserDTO userDTO) {
-        if (Objects.equals(userDTO.getUserId(), pasteDTO.getUser().getUserId())) {
-            pasteRepository.save(convertTo(pasteDTO, PasteEntity.class));
-        }
-        return pasteDTO;
     }
 
     public boolean changeProfile(UserDTO newDataUser) {

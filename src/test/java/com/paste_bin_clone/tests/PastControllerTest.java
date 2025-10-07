@@ -1,6 +1,7 @@
 package com.paste_bin_clone.tests;
 
-import com.paste_bin_clone.config.DatabaseSetupExtension;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.paste_bin_clone.config.CommonTest;
 import com.paste_bin_clone.controller.PasteController;
 import com.paste_bin_clone.dto.CommentDTO;
 import com.paste_bin_clone.dto.PasteDTO;
@@ -12,7 +13,13 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,43 +29,47 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-@ExtendWith(DatabaseSetupExtension.class)
-public class PastControllerTest extends DatabaseSetupExtension {
+@ExtendWith(CommonTest.class)
+@AutoConfigureMockMvc
+public class PastControllerTest extends CommonTest {
 
     @Autowired
     private PasteController pasteController;
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private static final String TEST_PASTE_NAME = "testPaste";
     private static final String SEARCH_STRING = "HelloWorld";
     private static final String TEST_PASTE_DESCRIPTION = "\"public class " + SEARCH_STRING + "} {\\n\" +\n" +
-            "                \"public static void main(String[] args) {\\n\" +\n" +
-            "                \"System.out.println(\\\" Hello, World!\\\");\\n\" +\n" +
-            "                \"}\\n\" +\n" +
-            "                \"}\\n\" +\n";
+        "                \"public static void main(String[] args) {\\n\" +\n" +
+        "                \"System.out.println(\\\" Hello, World!\\\");\\n\" +\n" +
+        "                \"}\\n\" +\n" +
+        "                \"}\\n\" +\n";
 
     public static final StringBuilder hash_code = new StringBuilder();
 
     @Test
     @Order(1)
-    void save() {
+    void saveTest() throws Exception {
 
         PasteDTO testPaste = new PasteDTO();
 
         Map<String, AtomicBoolean> emptyRequiredFields = new HashMap<>(Map.of(
-                "name", new AtomicBoolean(false),
-                "description", new AtomicBoolean(false),
-                "lifetime", new AtomicBoolean(false),
-                "access", new AtomicBoolean(false)));
+            "name", new AtomicBoolean(false),
+            "description", new AtomicBoolean(false),
+            "lifetime", new AtomicBoolean(false),
+            "access", new AtomicBoolean(false)));
 
-        ApplicationError error = assertThrows(
-                ApplicationError.class,
-                () -> pasteController.save(testPaste),
-                "нет ожидамого исключения при сохранеии пасты без требуемых полей"
-        );
+        ResultActions result = createPaste(testPaste)
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+        ApplicationError error = objectMapper.readValue(
+            result.andReturn().getResponse().getContentAsString(), ApplicationError.class);
 
         assertEquals(emptyRequiredFields.size(), error.getErrors().get(ERRORS.EMPTY_REQUIRED_FIELD).size());
 
@@ -76,11 +87,11 @@ public class PastControllerTest extends DatabaseSetupExtension {
         emptyRequiredFields.get("lifetime").set(false);
         emptyRequiredFields.get("access").set(false);
 
-        error = assertThrows(
-                ApplicationError.class,
-                () -> pasteController.save(testPaste),
-                "нет ожидамого исключения при сохранеии пасты без требуемых полей"
-        );
+        result = createPaste(testPaste)
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+        error = objectMapper.readValue(
+            result.andReturn().getResponse().getContentAsString(), ApplicationError.class);
 
         for (String field : error.getErrors().get(ERRORS.EMPTY_REQUIRED_FIELD)) {
             emptyRequiredFields.get(field).set(true);
@@ -92,14 +103,15 @@ public class PastControllerTest extends DatabaseSetupExtension {
         testPaste.setAccess(AccessLevel.PUBLIC);
 
         PasteDTO pasteDTO = assertDoesNotThrow(
-                () -> pasteController.save(testPaste),
-                "Ошибка при сохрранении пасты от не автоизиррованного пользователя при всех заполненных требуемых полях"
+            () -> pasteController.save(testPaste),
+            "Ошибка при сохранении пасты от не авторизированного пользователя при всех заполненных требуемых полях"
         );
 
         assertEquals(TEST_PASTE_NAME, pasteDTO.getName());
         assertEquals(TEST_PASTE_DESCRIPTION, pasteDTO.getDescription());
         assertEquals(AccessLevel.PUBLIC, pasteDTO.getAccess());
         assertEquals(LIFETIME.TEN_MINUTES, pasteDTO.getLifetime());
+
         hash_code.append(pasteDTO.getHashCode());
     }
 
@@ -107,12 +119,12 @@ public class PastControllerTest extends DatabaseSetupExtension {
     @Order(2)
     void get() {
         List<PasteDTO> pasteDTOS =
-                assertDoesNotThrow(
-                        () -> pasteController.get()
-                );
+            assertDoesNotThrow(
+                () -> pasteController.get()
+            );
         assertEquals(1, pasteDTOS.size());
         assertTrue(checkPaste(pasteDTOS.get(0)),
-                "Поля созданной пасты не совпадают с полученными данными"
+            "Поля созданной пасты не совпадают с полученными данными"
         );
     }
 
@@ -121,12 +133,12 @@ public class PastControllerTest extends DatabaseSetupExtension {
     void getByHashCode() {
 
         PasteDTO pasteDTO =
-                assertDoesNotThrow(() ->
-                        pasteController.getByHashCode(hash_code.toString())
-                );
+            assertDoesNotThrow(() ->
+                pasteController.getByHashCode(hash_code.toString())
+            );
 
         assertTrue(checkPaste(pasteDTO),
-                "Поля созданной пасты не совпадают с полученными данными"
+            "Поля созданной пасты не совпадают с полученными данными"
         );
 
         assertNull(pasteController.getByHashCode(hash_code + "aa"));
@@ -138,28 +150,28 @@ public class PastControllerTest extends DatabaseSetupExtension {
     void addComment() {
         String commentText = "testComment";
         PasteDTO pasteDTO =
-                assertDoesNotThrow(() ->
-                        pasteController.getByHashCode(hash_code.toString())
-                );
+            assertDoesNotThrow(() ->
+                pasteController.getByHashCode(hash_code.toString())
+            );
         PasteDTO finalPasteDTO = pasteDTO;
         CommentDTO commentDTO = assertDoesNotThrow(
-                () -> pasteController.addComment(finalPasteDTO.getId(), commentText)
+            () -> pasteController.addComment(finalPasteDTO.getId(), commentText)
         );
-        assertEquals(commentDTO.getText(), commentText);
+        assertEquals(commentText, commentDTO.getText());
 
         pasteDTO =
-                assertDoesNotThrow(() ->
-                        pasteController.getByHashCode(hash_code.toString())
-                );
+            assertDoesNotThrow(() ->
+                pasteController.getByHashCode(hash_code.toString())
+            );
 
-        assertEquals(pasteDTO.getComments().get(0).getText(), commentText);
+        assertEquals(commentText, pasteDTO.getComments().get(0).getText());
     }
 
     @Test
     @Order(5)
     void searchPaste() {
         List<PasteDTO> pasteDTO = assertDoesNotThrow(
-                () -> pasteController.searchPaste(SEARCH_STRING)
+            () -> pasteController.searchPaste(SEARCH_STRING)
         );
         assertEquals(1, pasteDTO.size());
         assertEquals(pasteDTO.get(0).getHashCode(), hash_code.toString());
@@ -167,10 +179,17 @@ public class PastControllerTest extends DatabaseSetupExtension {
 
     boolean checkPaste(PasteDTO paste) {
         return
-                TEST_PASTE_NAME.equals(paste.getName()) &&
-                        TEST_PASTE_DESCRIPTION.equals(paste.getDescription()) &&
-                        AccessLevel.PUBLIC.equals(paste.getAccess()) &&
-                        LIFETIME.TEN_MINUTES.equals(paste.getLifetime()) &&
-                        hash_code.toString().equals(paste.getHashCode());
+            TEST_PASTE_NAME.equals(paste.getName()) &&
+                TEST_PASTE_DESCRIPTION.equals(paste.getDescription()) &&
+                AccessLevel.PUBLIC.equals(paste.getAccess()) &&
+                LIFETIME.TEN_MINUTES.equals(paste.getLifetime()) &&
+                hash_code.toString().equals(paste.getHashCode());
     }
+
+    private ResultActions createPaste(PasteDTO pasteDTO) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.post("/paste/save")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(pasteDTO)));
+    }
+
 }

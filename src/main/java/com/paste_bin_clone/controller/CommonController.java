@@ -26,18 +26,30 @@ public class CommonController {
     @Autowired
     private UserService userService;
 
+    private static final String ANONYMOUS_USER = "anonymousUser";
+
+    @ExceptionHandler(ApplicationError.class)
+    public ResponseEntity<ErrorResponse> handleApplicationError(HttpServletRequest req, ApplicationError ex) {
+        HttpStatus status = ex.getHttpStatus() != null ? ex.getHttpStatus() : HttpStatus.BAD_REQUEST;
+        log.error("Application error occurred for request: {}", req.getRequestURI(), ex);
+        return buildErrorResponse(ex.getErrors(), status);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationError(HttpServletRequest req, AuthenticationException ex) {
+        log.warn("Authentication failed for request: {}", req.getRequestURI(), ex);
+        Map<ERRORS, String> authenticationError = Collections.singletonMap(
+            ERRORS.WRONG_USER_NAME_OR_PASSWORD, "Invalid credentials"
+        );
+        return buildErrorResponse(authenticationError, HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleError(HttpServletRequest req, Exception ex) {
-        if (ex instanceof ApplicationError) {
-            ApplicationError error = (ApplicationError) ex;
-            return buildErrorResponse(error.getErrors(), HttpStatus.BAD_REQUEST);
+        if (ex instanceof ApplicationError || ex instanceof AuthenticationException) {
+            throw (RuntimeException) ex;
         }
-        if (ex instanceof AuthenticationException) {
-            Map<ERRORS, String> authError = Collections.singletonMap(
-                ERRORS.WRONG_USER_NAME_OR_PASSWORD, "Invalid credentials"
-            );
-            return buildErrorResponse(authError, HttpStatus.UNAUTHORIZED);
-        }
+        log.error("Unexpected error occurred for request: {}", req.getRequestURI(), ex);
         Map<ERRORS, String> unknownError = Collections.singletonMap(
             ERRORS.UNKNOWN_ERROR, "An unexpected error"
         );
@@ -46,7 +58,7 @@ public class CommonController {
 
     public UserDTO getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && !authentication.getPrincipal().equals("anonymousUser")) {
+        if (authentication != null && !authentication.getPrincipal().equals(ANONYMOUS_USER)) {
             JWTUser user = (JWTUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             return userService.getUser(user.getUsername());
         }

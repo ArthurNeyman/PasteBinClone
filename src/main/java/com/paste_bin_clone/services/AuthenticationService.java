@@ -8,6 +8,7 @@ import com.paste_bin_clone.other.ERRORS;
 import com.paste_bin_clone.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,9 @@ public class AuthenticationService {
     @Transactional(readOnly = true)
     public AuthenticationResponseDTO login(AuthenticationRequestDTO requestDTO) {
         authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(requestDTO.getUserName(), requestDTO.getPassword()
+            new UsernamePasswordAuthenticationToken(
+                requestDTO.getUserName(),
+                requestDTO.getPassword()
             )
         );
         UserDTO user = userService.findByUserName(requestDTO.getUserName());
@@ -37,7 +40,9 @@ public class AuthenticationService {
     @Transactional
     public AuthenticationResponseDTO registration(UserDTO user) {
         if (userService.usernameExist(user.getUserName())) {
-            throw new ApplicationError().add(ERRORS.USER_NAME_ALREADY_EXIST, user.getUserName());
+            throw new ApplicationError()
+                .add(ERRORS.USER_NAME_ALREADY_EXIST, user.getUserName())
+                .withStatus(HttpStatus.CONFLICT);
         }
         UserDTO newUser = userService.registration(user);
         return new AuthenticationResponseDTO()

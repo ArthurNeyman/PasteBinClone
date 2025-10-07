@@ -10,7 +10,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Order(1)
-public class DatabaseSetupExtension implements BeforeAllCallback {
+public class CommonTest implements BeforeAllCallback {
 
     @Override
     public void beforeAll(ExtensionContext context) {

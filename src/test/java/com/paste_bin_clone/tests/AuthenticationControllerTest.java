@@ -1,76 +1,93 @@
 package com.paste_bin_clone.tests;
 
-import com.paste_bin_clone.config.DatabaseSetupExtension;
-import com.paste_bin_clone.controller.AuthenticationController;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.paste_bin_clone.config.CommonTest;
 import com.paste_bin_clone.dto.AuthenticationRequestDTO;
-import com.paste_bin_clone.dto.AuthenticationResponseDTO;
 import com.paste_bin_clone.dto.UserDTO;
-import com.paste_bin_clone.other.ApplicationError;
-import com.paste_bin_clone.other.ERRORS;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @SpringBootTest
-@ExtendWith(DatabaseSetupExtension.class)
-class AuthenticationControllerTest extends DatabaseSetupExtension {
+@ExtendWith(CommonTest.class)
+@AutoConfigureMockMvc
+class AuthenticationControllerTest extends CommonTest {
 
     @Autowired
-    private AuthenticationController authenticationController;
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     public static final String TEST_USER_NAME = "testUser";
     public static final String TEST_USER_PASSWORD = "testUserPassword";
 
     public static final UserDTO testUser = new UserDTO()
-            .setUserName(TEST_USER_NAME)
-            .setPassword(TEST_USER_PASSWORD);
+        .setUserName(TEST_USER_NAME)
+        .setPassword(TEST_USER_PASSWORD);
 
     @Test
     @Order(1)
-    void registrationPositiveTest() {
-        AuthenticationResponseDTO registrationAnswer =
-                assertDoesNotThrow(() -> authenticationController.registration(testUser));
-        assertEquals(registrationAnswer.getUserDTO().getUserName(), testUser.getUserName());
+    void registrationPositiveTest() throws Exception {
+        registerUser(testUser)
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.userDTO.userName").value(TEST_USER_NAME));
     }
 
     @Test
     @Order(2)
-    void registrationNegativeDuplicateUserNameTest() {
-        ApplicationError error = assertThrows(
-                ApplicationError.class,
-                () -> authenticationController.registration(testUser),
-                "нет ожидаемого исключения при попытке зарегистрироваться под существующим именем пользователя");
-        assertNotNull(error.getErrors().get(ERRORS.USER_NAME_ALREADY_EXIST));
+    void registrationNegativeDuplicateUserNameTest() throws Exception {
+        registerUser(testUser)
+            .andExpect(MockMvcResultMatchers.status().isConflict())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.errors.USER_NAME_ALREADY_EXIST").exists());
     }
 
     @Test
     @Order(3)
-    void loginPositiveTest() {
-        AuthenticationResponseDTO loginAnswerCorrect =
-                assertDoesNotThrow(() -> authenticationController.login(
-                        new AuthenticationRequestDTO()
-                                .setUserName(testUser.getUserName())
-                                .setPassword(testUser.getPassword()))
-                );
+    void loginPositiveTest() throws Exception {
+        loginUser(testUser.getUserName(), testUser.getPassword())
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.token").exists());
     }
 
     @Test
     @Order(4)
-    void loginWrongPasswordTest() {
-        ApplicationError error =
-                assertThrows(
-                        ApplicationError.class, () ->
-                                authenticationController.login(
-                                        new AuthenticationRequestDTO()
-                                                .setUserName(testUser.getUserName())
-                                                .setPassword(testUser.getPassword() + "dfsf"))
-                );
+    void loginWrongPasswordTest() throws Exception {
+        loginUser(testUser.getUserName(), testUser.getPassword() + "dfsf")
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.errors.WRONG_USER_NAME_OR_PASSWORD").exists());
+    }
+
+    private ResultActions registerUser(UserDTO user) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.post("/auth/registration")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(user)));
+    }
+
+    private ResultActions loginUser(String username, String password) throws Exception {
+        AuthenticationRequestDTO request = new AuthenticationRequestDTO()
+            .setUserName(username)
+            .setPassword(password);
+
+        return mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)));
+    }
+
+    private String registerAndGetToken(UserDTO user) throws Exception {
+        String response = registerUser(user)
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+        return objectMapper.readTree(response).get("token").asText();
     }
 }

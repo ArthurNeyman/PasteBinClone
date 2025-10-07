@@ -39,10 +39,8 @@ public class MapperConfig {
         modelMapper
             .typeMap(UserDTO.class, UserEntity.class)
             .addMappings(mapper -> mapper.using(
-                context -> {
-                    UserDTO userDTO = (UserDTO) context.getSource();
-                    return passwordEncoder.encode((userDTO.getPassword()));
-                }
+                (Converter<String, String>) context ->
+                    context.getSource() == null ? null : passwordEncoder.encode(context.getSource())
             ).map(UserDTO::getPassword, UserEntity::setPassword));
     }
 }
