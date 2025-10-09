@@ -3,11 +3,12 @@ package com.paste_bin_clone.other;
 import lombok.Getter;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Getter
-public enum LIFETIME {
+public enum LifeTime {
 
     TEN_MINUTES(10, "10 минут"),
 
@@ -26,17 +27,21 @@ public enum LIFETIME {
     private final Integer minutes;
     private final String description;
 
-    LIFETIME(Integer minutes, String description) {
+    LifeTime(Integer minutes, String description) {
         this.minutes = minutes;
         this.description = description;
     }
 
-    private static final Map<LIFETIME, String> lifeTimesList =
+    private static final Map<LifeTime, String> lifeTimesList =
             Arrays.stream(values())
                     .collect(Collectors.toMap(el->el, e -> e.description));
 
-    public static Map<LIFETIME, String> getLifTimes() {
+    public static Map<LifeTime, String> getLifTimes() {
         return lifeTimesList;
+    }
+
+    public static List<LifeTime> getAll() {
+        return Arrays.asList(values());
     }
 
 }

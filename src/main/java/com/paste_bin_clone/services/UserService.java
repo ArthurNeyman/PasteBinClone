@@ -3,10 +3,13 @@ package com.paste_bin_clone.services;
 import com.paste_bin_clone.dto.PasteDTO;
 import com.paste_bin_clone.dto.UserDTO;
 import com.paste_bin_clone.entities.UserEntity;
+import com.paste_bin_clone.other.ApplicationError;
+import com.paste_bin_clone.other.ERRORS;
 import com.paste_bin_clone.other.ROLES;
 import com.paste_bin_clone.repositories.PasteRepository;
 import com.paste_bin_clone.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -52,17 +55,19 @@ public class UserService extends CommonService {
         return pasteUserList;
     }
 
-    public boolean changeProfile(UserDTO newDataUser) {
-        UserDTO oldUser = this.getUser(newDataUser.getUserName());
+    public UserDTO updateProfile(UserDTO newDataUser, UserDTO oldUser) {
         if (!oldUser.getUserName().equals(newDataUser.getUserName()))
-            if (userRepository.findByUserName(newDataUser.getUserName()) != null)
-                return false;
+            if (userRepository.findByUserName(newDataUser.getUserName()) != null){
+                throw new ApplicationError()
+                    .add(ERRORS.USER_NAME_ALREADY_EXIST, oldUser.getUserName())
+                    .withStatus(HttpStatus.CONFLICT);
+            }
         oldUser.setUserName(newDataUser.getUserName());
         oldUser.setEmail(newDataUser.getEmail());
         oldUser.setFirstName(newDataUser.getFirstName());
         oldUser.setLastName(newDataUser.getLastName());
         userRepository.save(convertTo(oldUser, UserEntity.class));
-        return true;
+        return oldUser;
     }
 
     public UserDTO getUser(String userName) {

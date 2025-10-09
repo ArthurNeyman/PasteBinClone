@@ -9,16 +9,15 @@ import com.paste_bin_clone.entities.PasteEntity;
 import com.paste_bin_clone.other.AccessLevel;
 import com.paste_bin_clone.other.ApplicationError;
 import com.paste_bin_clone.other.ERRORS;
-import com.paste_bin_clone.other.LIFETIME;
 import com.paste_bin_clone.repositories.CommentRepository;
 import com.paste_bin_clone.repositories.PasteRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -28,14 +27,6 @@ public class PasteService extends CommonService {
     private final PasteRepository pasteRepository;
     private final CommentRepository commentRepository;
     private final UtilService utilService;
-
-    public Map<LIFETIME, String> getLifeTimeList() {
-        return LIFETIME.getLifTimes();
-    }
-
-    public Map<AccessLevel, Map<String, String>> getAccessList() {
-        return AccessLevel.getAccessLevelList();
-    }
 
     public List<PasteDTO> getLastTenPastes() {
         List<PasteEntity> listEntities =
@@ -66,12 +57,16 @@ public class PasteService extends CommonService {
         return pasteDTO;
     }
 
-    public PasteDTO getPasteByHashCode(String hashCod) {
+    public PasteDTO getPasteByHashCode(String hashCode) {
         PasteEntity paste =
                 pasteRepository.findByHashCodeAndDeadTimeAfterAndAccessIn(
-                        hashCod,
+                        hashCode,
                         ZonedDateTime.now().toInstant()
                         , new ArrayList<>(List.of(AccessLevel.PUBLIC.toString(), AccessLevel.UNLISTED.toString())));
+
+        if(paste == null) {
+            throw new ApplicationError().add(ERRORS.DOES_NOT_EXIST, hashCode).withStatus(HttpStatus.NOT_FOUND);
+        }
         return convertTo(paste, PasteDTO.class);
     }
 

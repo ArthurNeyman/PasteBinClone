@@ -3,12 +3,11 @@ package com.paste_bin_clone.tests;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paste_bin_clone.config.CommonTest;
 import com.paste_bin_clone.controller.PasteController;
-import com.paste_bin_clone.dto.CommentDTO;
 import com.paste_bin_clone.dto.PasteDTO;
 import com.paste_bin_clone.other.AccessLevel;
 import com.paste_bin_clone.other.ApplicationError;
 import com.paste_bin_clone.other.ERRORS;
-import com.paste_bin_clone.other.LIFETIME;
+import com.paste_bin_clone.other.LifeTime;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,9 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
@@ -99,29 +96,37 @@ public class PastControllerTest extends CommonTest {
 
         assertTrue(emptyRequiredFields.values().stream().allMatch(val -> true));
 
-        testPaste.setLifetime(LIFETIME.TEN_MINUTES);
+        testPaste.setLifetime(LifeTime.TEN_MINUTES);
         testPaste.setAccess(AccessLevel.PUBLIC);
 
-        PasteDTO pasteDTO = assertDoesNotThrow(
-            () -> pasteController.save(testPaste),
-            "Ошибка при сохранении пасты от не авторизированного пользователя при всех заполненных требуемых полях"
-        );
+        result = createPaste(testPaste)
+            .andExpect(MockMvcResultMatchers.status().isOk());
+
+        PasteDTO pasteDTO = objectMapper.readValue(
+            result.andReturn().getResponse().getContentAsString(), PasteDTO.class);
 
         assertEquals(TEST_PASTE_NAME, pasteDTO.getName());
         assertEquals(TEST_PASTE_DESCRIPTION, pasteDTO.getDescription());
         assertEquals(AccessLevel.PUBLIC, pasteDTO.getAccess());
-        assertEquals(LIFETIME.TEN_MINUTES, pasteDTO.getLifetime());
+        assertEquals(LifeTime.TEN_MINUTES, pasteDTO.getLifetime());
 
         hash_code.append(pasteDTO.getHashCode());
     }
 
     @Test
     @Order(2)
-    void get() {
+    void getTest() throws Exception {
+        ResultActions result =
+            mockMvc.perform(MockMvcRequestBuilders.get("/paste")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""));
+
+        result.andExpect(MockMvcResultMatchers.status().isOk());
+
         List<PasteDTO> pasteDTOS =
-            assertDoesNotThrow(
-                () -> pasteController.get()
-            );
+            List.of(objectMapper.readValue(
+                result.andReturn().getResponse().getContentAsString(), PasteDTO[].class));
+
         assertEquals(1, pasteDTOS.size());
         assertTrue(checkPaste(pasteDTOS.get(0)),
             "Поля созданной пасты не совпадают с полученными данными"
@@ -130,49 +135,40 @@ public class PastControllerTest extends CommonTest {
 
     @Test
     @Order(3)
-    void getByHashCode() {
+    void getByHashCodeTest() throws Exception {
 
-        PasteDTO pasteDTO =
-            assertDoesNotThrow(() ->
-                pasteController.getByHashCode(hash_code.toString())
-            );
+        ResultActions result =
+            mockMvc.perform(MockMvcRequestBuilders.get("/paste/" + hash_code)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""));
+        result.andExpect(MockMvcResultMatchers.status().isOk());
+
+        PasteDTO pasteDTO = objectMapper.readValue(
+            result.andReturn().getResponse().getContentAsString(), PasteDTO.class);
 
         assertTrue(checkPaste(pasteDTO),
             "Поля созданной пасты не совпадают с полученными данными"
         );
 
-        assertNull(pasteController.getByHashCode(hash_code + "aa"));
+        result =
+            mockMvc.perform(MockMvcRequestBuilders.get("/paste/" + hash_code + "aaa")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""));
+        result.andExpect(MockMvcResultMatchers.status().isNotFound());
 
-    }
-
-    @Test
-    @Order(4)
-    void addComment() {
-        String commentText = "testComment";
-        PasteDTO pasteDTO =
-            assertDoesNotThrow(() ->
-                pasteController.getByHashCode(hash_code.toString())
-            );
-        PasteDTO finalPasteDTO = pasteDTO;
-        CommentDTO commentDTO = assertDoesNotThrow(
-            () -> pasteController.addComment(finalPasteDTO.getId(), commentText)
-        );
-        assertEquals(commentText, commentDTO.getText());
-
-        pasteDTO =
-            assertDoesNotThrow(() ->
-                pasteController.getByHashCode(hash_code.toString())
-            );
-
-        assertEquals(commentText, pasteDTO.getComments().get(0).getText());
     }
 
     @Test
     @Order(5)
-    void searchPaste() {
-        List<PasteDTO> pasteDTO = assertDoesNotThrow(
-            () -> pasteController.searchPaste(SEARCH_STRING)
-        );
+    void searchPasteTest() throws Exception {
+        ResultActions result =
+            mockMvc.perform(MockMvcRequestBuilders.get("/paste/search/" + SEARCH_STRING)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""));
+
+        List<PasteDTO> pasteDTO = List.of(objectMapper.readValue(
+            result.andReturn().getResponse().getContentAsString(), PasteDTO[].class));
+        ;
         assertEquals(1, pasteDTO.size());
         assertEquals(pasteDTO.get(0).getHashCode(), hash_code.toString());
     }
@@ -182,12 +178,12 @@ public class PastControllerTest extends CommonTest {
             TEST_PASTE_NAME.equals(paste.getName()) &&
                 TEST_PASTE_DESCRIPTION.equals(paste.getDescription()) &&
                 AccessLevel.PUBLIC.equals(paste.getAccess()) &&
-                LIFETIME.TEN_MINUTES.equals(paste.getLifetime()) &&
+                LifeTime.TEN_MINUTES.equals(paste.getLifetime()) &&
                 hash_code.toString().equals(paste.getHashCode());
     }
 
     private ResultActions createPaste(PasteDTO pasteDTO) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders.post("/paste/save")
+        return mockMvc.perform(MockMvcRequestBuilders.post("/paste")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(pasteDTO)));
     }

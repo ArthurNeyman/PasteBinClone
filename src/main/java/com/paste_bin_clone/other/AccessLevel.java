@@ -3,6 +3,7 @@ package com.paste_bin_clone.other;
 import lombok.Getter;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -30,4 +31,7 @@ public enum AccessLevel {
                                     "name", el.name,
                                     "description", el.description)));
 
+    public static List<AccessLevel> getAll() {
+        return Arrays.asList(values());
+    }
 }
