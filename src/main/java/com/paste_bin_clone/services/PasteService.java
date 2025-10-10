@@ -30,9 +30,9 @@ public class PasteService extends CommonService {
 
     public List<PasteDTO> getLastTenPastes() {
         List<PasteEntity> listEntities =
-                pasteRepository.findFirst10ByAccessAndDeadTimeAfterOrderByDateCreate(
-                        AccessLevel.PUBLIC.toString(), ZonedDateTime.now().toInstant()
-                );
+            pasteRepository.findFirst10ByAccessAndDeadTimeAfterOrderByDateCreate(
+                AccessLevel.PUBLIC.toString(), ZonedDateTime.now().toInstant()
+            );
         return convertList(listEntities, (el) -> convertTo(el, PasteDTO.class));
     }
 
@@ -59,12 +59,12 @@ public class PasteService extends CommonService {
 
     public PasteDTO getPasteByHashCode(String hashCode) {
         PasteEntity paste =
-                pasteRepository.findByHashCodeAndDeadTimeAfterAndAccessIn(
-                        hashCode,
-                        ZonedDateTime.now().toInstant()
-                        , new ArrayList<>(List.of(AccessLevel.PUBLIC.toString(), AccessLevel.UNLISTED.toString())));
+            pasteRepository.findByHashCodeAndDeadTimeAfterAndAccessIn(
+                hashCode,
+                ZonedDateTime.now().toInstant()
+                , new ArrayList<>(List.of(AccessLevel.PUBLIC.toString(), AccessLevel.UNLISTED.toString())));
 
-        if(paste == null) {
+        if (paste == null) {
             throw new ApplicationError().add(ERRORS.DOES_NOT_EXIST, hashCode).withStatus(HttpStatus.NOT_FOUND);
         }
         return convertTo(paste, PasteDTO.class);
@@ -77,6 +77,7 @@ public class PasteService extends CommonService {
         return commentDTO;
     }
 
+
     public void deleteByHashCode(String hashCode, UserDTO userDTO) {
         pasteRepository.deleteByHashCodeAndUserId(hashCode, userDTO.getUserId());
     }
@@ -85,9 +86,9 @@ public class PasteService extends CommonService {
 
         List<PasteDTO> dtos = new ArrayList<>();
         pasteRepository
-                .findByNameIgnoreCaseContainingAndDeadTimeAfterOrDescriptionIgnoreCaseContainingAndDeadTimeAfter(
-                        searchString, ZonedDateTime.now().toInstant(), searchString, ZonedDateTime.now().toInstant())
-                .forEach(el -> dtos.add(convertTo(el, PasteDTO.class)));
+            .findByNameIgnoreCaseContainingAndDeadTimeAfterOrDescriptionIgnoreCaseContainingAndDeadTimeAfter(
+                searchString, ZonedDateTime.now().toInstant(), searchString, ZonedDateTime.now().toInstant())
+            .forEach(el -> dtos.add(convertTo(el, PasteDTO.class)));
 
         return dtos;
     }
@@ -114,6 +115,7 @@ public class PasteService extends CommonService {
             throw error;
         }
     }
+
     public PasteDTO updatePaste(PasteDTO pasteDTO, UserDTO userDTO) {
         if (Objects.equals(userDTO.getUserId(), pasteDTO.getUser().getUserId())) {
             pasteRepository.save(convertTo(pasteDTO, PasteEntity.class));

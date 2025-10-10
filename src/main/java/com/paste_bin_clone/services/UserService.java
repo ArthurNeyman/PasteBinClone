@@ -1,20 +1,22 @@
 package com.paste_bin_clone.services;
 
+import com.paste_bin_clone.dto.CommentDTO;
 import com.paste_bin_clone.dto.PasteDTO;
 import com.paste_bin_clone.dto.UserDTO;
 import com.paste_bin_clone.entities.UserEntity;
 import com.paste_bin_clone.other.ApplicationError;
 import com.paste_bin_clone.other.ERRORS;
 import com.paste_bin_clone.other.ROLES;
+import com.paste_bin_clone.repositories.CommentRepository;
 import com.paste_bin_clone.repositories.PasteRepository;
 import com.paste_bin_clone.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class UserService extends CommonService {
 
     private final UserRepository userRepository;
     private final PasteRepository pasteRepository;
+    private final CommentRepository commentRepository;
 
     public static final ConcurrentHashMap<String, UserDTO> USERS = new ConcurrentHashMap<>();
 
@@ -48,16 +51,16 @@ public class UserService extends CommonService {
     }
 
     public List<PasteDTO> getPastes(UserDTO user) {
-        List<PasteDTO> pasteUserList = new ArrayList<>();
-        pasteRepository
+        return pasteRepository
             .findAllByUserIdOrderByDateCreate(user.getUserId())
-            .forEach(paste -> pasteUserList.add(convertTo(paste, PasteDTO.class)));
-        return pasteUserList;
+            .stream()
+            .map(p -> convertTo(p, PasteDTO.class))
+            .collect(Collectors.toList());
     }
 
     public UserDTO updateProfile(UserDTO newDataUser, UserDTO oldUser) {
         if (!oldUser.getUserName().equals(newDataUser.getUserName()))
-            if (userRepository.findByUserName(newDataUser.getUserName()) != null){
+            if (userRepository.findByUserName(newDataUser.getUserName()) != null) {
                 throw new ApplicationError()
                     .add(ERRORS.USER_NAME_ALREADY_EXIST, oldUser.getUserName())
                     .withStatus(HttpStatus.CONFLICT);
@@ -66,12 +69,23 @@ public class UserService extends CommonService {
         oldUser.setEmail(newDataUser.getEmail());
         oldUser.setFirstName(newDataUser.getFirstName());
         oldUser.setLastName(newDataUser.getLastName());
-        userRepository.save(convertTo(oldUser, UserEntity.class));
-        return oldUser;
+        UserEntity savedEntity = userRepository.save(convertTo(oldUser, UserEntity.class));
+        return convertTo(savedEntity, UserDTO.class);
     }
 
     public UserDTO getUser(String userName) {
         return USERS.computeIfAbsent(userName, val -> convertTo(userRepository.findByUserName(userName), UserDTO.class));
+    }
+
+    public void deleteComment(Long commentId, UserDTO userDTO) {
+        commentRepository.deleteByIdAndUserId(commentId, userDTO.getUserId());
+    }
+
+    public List<CommentDTO> getUserComments(UserDTO userDTO) {
+        return commentRepository.findAllByUserId(userDTO.getUserId())
+            .stream()
+            .map(c -> convertTo(c, CommentDTO.class))
+            .collect(Collectors.toList());
     }
 
 }

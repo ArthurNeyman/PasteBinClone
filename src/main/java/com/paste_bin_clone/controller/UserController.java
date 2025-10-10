@@ -76,11 +76,35 @@ public class UserController extends CommonController {
         @ApiResponse(code = 200, message = "Comment successfully added", response = CommentDTO.class),
         @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
         @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Access denied", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Paste not found", response = ErrorResponse.class)
     })
     public ResponseEntity<CommentDTO> addComment(@RequestParam Long pasteId, @RequestParam String text) {
         return ResponseEntity.ok(pasteService.addComment(pasteId, text, getUser()));
+    }
+
+    @GetMapping("/comments")
+    @ApiOperation("Get user`s comment")
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "Comment successfully added", response = CommentDTO.class, responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Paste not found", response = ErrorResponse.class)
+    })
+    public ResponseEntity<List<CommentDTO>> getUserComments() {
+        return ResponseEntity.ok(userService.getUserComments(getUser()));
+    }
+
+    @DeleteMapping("/comments/{commentId}")
+    @ApiOperation("Delete comment by commentId")
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "Comment successfully deleted", response = CommentDTO.class),
+        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
+        @ApiResponse(code = 404, message = "Paste not found", response = ErrorResponse.class)
+    })
+    public ResponseEntity<CommentDTO> deleteComment(@PathVariable Long commentId) {
+        userService.deleteComment(commentId, getUser());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/profile")

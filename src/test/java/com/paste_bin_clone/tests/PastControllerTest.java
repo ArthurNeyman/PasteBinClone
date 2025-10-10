@@ -139,8 +139,7 @@ public class PastControllerTest extends CommonTest {
 
         ResultActions result =
             mockMvc.perform(MockMvcRequestBuilders.get("/paste/" + hash_code)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(""));
+                .contentType(MediaType.APPLICATION_JSON));
         result.andExpect(MockMvcResultMatchers.status().isOk());
 
         PasteDTO pasteDTO = objectMapper.readValue(
@@ -152,8 +151,7 @@ public class PastControllerTest extends CommonTest {
 
         result =
             mockMvc.perform(MockMvcRequestBuilders.get("/paste/" + hash_code + "aaa")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(""));
+                .contentType(MediaType.APPLICATION_JSON));
         result.andExpect(MockMvcResultMatchers.status().isNotFound());
 
     }
