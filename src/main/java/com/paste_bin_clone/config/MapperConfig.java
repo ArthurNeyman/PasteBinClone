@@ -3,7 +3,7 @@ package com.paste_bin_clone.config;
 import com.paste_bin_clone.dto.UserDTO;
 import com.paste_bin_clone.entities.UserEntity;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.collection.internal.PersistentBag;
+import org.hibernate.collection.spi.PersistentBag;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
@@ -35,12 +35,17 @@ public class MapperConfig {
         });
         modelMapper
             .typeMap(UserEntity.class, UserDTO.class)
-            .addMappings(mapper -> mapper.skip(UserDTO::setPassword));
+            .addMappings(mapper -> {
+                mapper.skip(UserDTO::setPassword);
+            });
         modelMapper
             .typeMap(UserDTO.class, UserEntity.class)
-            .addMappings(mapper -> mapper.using(
-                (Converter<String, String>) context ->
-                    context.getSource() == null ? null : passwordEncoder.encode(context.getSource())
-            ).map(UserDTO::getPassword, UserEntity::setPassword));
+            .addMappings(
+                mapper ->{
+                    mapper.using(
+                        (Converter<String, String>) context ->
+                            context.getSource() == null ? null : passwordEncoder.encode(context.getSource())
+                    ).map(UserDTO::getPassword, UserEntity::setPassword);
+            });
     }
 }

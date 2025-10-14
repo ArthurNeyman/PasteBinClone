@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -52,7 +51,7 @@ public class UserController extends CommonController {
         @ApiResponse(code = 404, message = "Paste not found", response = ErrorResponse.class)
     })
     public ResponseEntity<PasteDTO> updatePaste(@PathVariable String hashCode,
-                                                @Valid @RequestBody PasteDTO pasteDTO) {
+                                                @RequestBody PasteDTO pasteDTO) {
         return ResponseEntity.ok(pasteService.updatePaste(pasteDTO, getUser()));
     }
 
@@ -114,7 +113,7 @@ public class UserController extends CommonController {
         @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
         @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
     })
-    public ResponseEntity<UserDTO> updateProfile(@Valid @RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserDTO> updateProfile(@RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(userService.updateProfile(userDTO, getUser()));
     }
 }

@@ -33,7 +33,7 @@ public class UserService extends CommonService {
         userEntity.setRole(ROLES.USER.toString());
         userEntity = userRepository.save(userEntity);
         UserDTO userAnswer = convertTo(userEntity, UserDTO.class);
-        USERS.put(userAnswer.getUserName(), userAnswer);
+        USERS.put(userAnswer.getUsername(), userAnswer);
         return userAnswer;
     }
 
@@ -42,12 +42,12 @@ public class UserService extends CommonService {
     }
 
     public UserDTO findByUserName(String userName) {
-        UserEntity userEntity = userRepository.findByUserName(userName);
+        UserEntity userEntity = userRepository.findByUsername(userName);
         return convertTo(userEntity, UserDTO.class);
     }
 
     public UserEntity findEntityByUserName(String userName) {
-        return userRepository.findByUserName(userName);
+        return userRepository.findByUsername(userName);
     }
 
     public List<PasteDTO> getPastes(UserDTO user) {
@@ -59,13 +59,13 @@ public class UserService extends CommonService {
     }
 
     public UserDTO updateProfile(UserDTO newDataUser, UserDTO oldUser) {
-        if (!oldUser.getUserName().equals(newDataUser.getUserName()))
-            if (userRepository.findByUserName(newDataUser.getUserName()) != null) {
+        if (!oldUser.getUsername().equals(newDataUser.getUsername()))
+            if (userRepository.findByUsername(newDataUser.getUsername()) != null) {
                 throw new ApplicationError()
-                    .add(ERRORS.USER_NAME_ALREADY_EXIST, oldUser.getUserName())
+                    .add(ERRORS.USER_NAME_ALREADY_EXIST, oldUser.getUsername())
                     .withStatus(HttpStatus.CONFLICT);
             }
-        oldUser.setUserName(newDataUser.getUserName());
+        oldUser.setUsername(newDataUser.getUsername());
         oldUser.setEmail(newDataUser.getEmail());
         oldUser.setFirstName(newDataUser.getFirstName());
         oldUser.setLastName(newDataUser.getLastName());
@@ -74,7 +74,7 @@ public class UserService extends CommonService {
     }
 
     public UserDTO getUser(String userName) {
-        return USERS.computeIfAbsent(userName, val -> convertTo(userRepository.findByUserName(userName), UserDTO.class));
+        return USERS.computeIfAbsent(userName, val -> convertTo(userRepository.findByUsername(userName), UserDTO.class));
     }
 
     public void deleteComment(Long commentId, UserDTO userDTO) {

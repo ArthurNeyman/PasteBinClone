@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-
 @RestController
 @RequestMapping(value = "auth")
 @RequiredArgsConstructor
@@ -32,7 +30,7 @@ public class AuthenticationController extends CommonController {
         @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
         @ApiResponse(code = 401, message = "Invalid credentials", response = ErrorResponse.class)
     })
-    public ResponseEntity<AuthenticationResponseDTO> login(@Valid @RequestBody AuthenticationRequestDTO requestDTO) {
+    public ResponseEntity<AuthenticationResponseDTO> login(@RequestBody AuthenticationRequestDTO requestDTO) {
         return ResponseEntity.ok(authenticationService.login(requestDTO));
     }
 
@@ -43,7 +41,7 @@ public class AuthenticationController extends CommonController {
         @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
         @ApiResponse(code = 409, message = "User already exists", response = ErrorResponse.class)
     })
-    public ResponseEntity<AuthenticationResponseDTO> registration(@Valid @RequestBody UserDTO userDTO) {
+    public ResponseEntity<AuthenticationResponseDTO> registration(@RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(authenticationService.registration(userDTO));
     }
 

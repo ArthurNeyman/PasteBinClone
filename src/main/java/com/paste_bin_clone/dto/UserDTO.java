@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 public class UserDTO {
     private Long userId;
     private String password;
-    private String userName;
+    private String username;
     private String firstName;
     private String lastName;
     private ROLES role;

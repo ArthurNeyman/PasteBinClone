@@ -31,7 +31,7 @@ class AuthenticationControllerTest extends CommonTest {
     public static final String TEST_USER_PASSWORD = "testUserPassword";
 
     public static final UserDTO testUser = new UserDTO()
-        .setUserName(TEST_USER_NAME)
+        .setUsername(TEST_USER_NAME)
         .setPassword(TEST_USER_PASSWORD);
 
     @Test
@@ -39,7 +39,7 @@ class AuthenticationControllerTest extends CommonTest {
     void registrationPositiveTest() throws Exception {
         registerUser(testUser)
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.userDTO.userName").value(TEST_USER_NAME));
+            .andExpect(MockMvcResultMatchers.jsonPath("$.userDTO.username").value(TEST_USER_NAME));
     }
 
     @Test
@@ -53,7 +53,7 @@ class AuthenticationControllerTest extends CommonTest {
     @Test
     @Order(3)
     void loginPositiveTest() throws Exception {
-        loginUser(testUser.getUserName(), testUser.getPassword())
+        loginUser(testUser.getUsername(), testUser.getPassword())
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.token").exists());
     }
@@ -61,7 +61,7 @@ class AuthenticationControllerTest extends CommonTest {
     @Test
     @Order(4)
     void loginWrongPasswordTest() throws Exception {
-        loginUser(testUser.getUserName(), testUser.getPassword() + "dfsf")
+        loginUser(testUser.getUsername(), testUser.getPassword() + "dfsf")
             .andExpect(MockMvcResultMatchers.status().isUnauthorized())
             .andExpect(MockMvcResultMatchers.jsonPath("$.errors.WRONG_USER_NAME_OR_PASSWORD").exists());
     }

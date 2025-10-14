@@ -2,8 +2,8 @@ package com.paste_bin_clone.dto;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBlank;
 
-import javax.validation.constraints.NotBlank;
 
 @Data
 @Accessors(chain = true)

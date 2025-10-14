@@ -4,7 +4,6 @@ import com.paste_bin_clone.entities.PasteEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +19,6 @@ public interface PasteRepository extends JpaRepository<PasteEntity, Long> {
 
     List<PasteEntity> findByNameIgnoreCaseContainingAndDeadTimeAfterOrDescriptionIgnoreCaseContainingAndDeadTimeAfter(String searchString, Instant dateNow1, String searchString1, Instant dateNow);
 
-    @Transactional
     void deleteByHashCodeAndUserId(String hashCode, long userId);
 
     List<PasteEntity> findAllByDeadTimeBefore(Instant dateTime);
