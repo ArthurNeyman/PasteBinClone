@@ -2,7 +2,6 @@ package com.paste_bin_clone.tests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paste_bin_clone.config.CommonTest;
-import com.paste_bin_clone.controller.PasteController;
 import com.paste_bin_clone.dto.PasteDTO;
 import com.paste_bin_clone.other.AccessLevel;
 import com.paste_bin_clone.other.ApplicationError;
@@ -33,8 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @AutoConfigureMockMvc
 public class PastControllerTest extends CommonTest {
 
-    @Autowired
-    private PasteController pasteController;
     @Autowired
     private MockMvc mockMvc;
     @Autowired

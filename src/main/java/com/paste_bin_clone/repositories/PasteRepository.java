@@ -22,4 +22,7 @@ public interface PasteRepository extends JpaRepository<PasteEntity, Long> {
 
     @Transactional
     void deleteByHashCodeAndUserId(String hashCode, long userId);
+
+    List<PasteEntity> findAllByDeadTimeBefore(Instant dateTime);
+
 }
