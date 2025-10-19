@@ -10,5 +10,5 @@ public class PasteSaveDTO {
     private String name;
     private String description;
     private AccessLevel access;
-    private LifeTime lifetime;
+    private LifeTime lifeTime;
 }

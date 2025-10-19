@@ -45,7 +45,7 @@ public class PasteService extends CommonService {
         ZonedDateTime now = ZonedDateTime.now();
 
         pasteDTO.setDateCreate(now.toInstant());
-        pasteDTO.setDeadTime(now.plusMinutes(pasteDTO.getLifetime().getMinutes()).toInstant());
+        pasteDTO.setDeadTime(now.plusMinutes(pasteDTO.getLifeTime().getMinutes()).toInstant());
 
         pasteDTO.setHashCode(utilService.getHashCode());
         pasteDTO.setUser(userDTO);
@@ -105,7 +105,7 @@ public class PasteService extends CommonService {
         if (pasteDTO.getDescription() == null || pasteDTO.getDescription().isEmpty()) {
             error.add(errorEnumValue, "description");
         }
-        if (pasteDTO.getLifetime() == null) {
+        if (pasteDTO.getLifeTime() == null) {
             error.add(errorEnumValue, "lifetime");
         }
         if (pasteDTO.getAccess() == null) {

@@ -93,7 +93,7 @@ public class PastControllerTest extends CommonTest {
 
         assertTrue(emptyRequiredFields.values().stream().allMatch(val -> true));
 
-        testPaste.setLifetime(LifeTime.TEN_MINUTES);
+        testPaste.setLifeTime(LifeTime.TEN_MINUTES);
         testPaste.setAccess(AccessLevel.PUBLIC);
 
         result = createPaste(testPaste)
@@ -105,7 +105,7 @@ public class PastControllerTest extends CommonTest {
         assertEquals(TEST_PASTE_NAME, pasteDTO.getName());
         assertEquals(TEST_PASTE_DESCRIPTION, pasteDTO.getDescription());
         assertEquals(AccessLevel.PUBLIC, pasteDTO.getAccess());
-        assertEquals(LifeTime.TEN_MINUTES, pasteDTO.getLifetime());
+        assertEquals(LifeTime.TEN_MINUTES, pasteDTO.getLifeTime());
 
         hash_code.append(pasteDTO.getHashCode());
     }
@@ -173,7 +173,7 @@ public class PastControllerTest extends CommonTest {
             TEST_PASTE_NAME.equals(paste.getName()) &&
                 TEST_PASTE_DESCRIPTION.equals(paste.getDescription()) &&
                 AccessLevel.PUBLIC.equals(paste.getAccess()) &&
-                LifeTime.TEN_MINUTES.equals(paste.getLifetime()) &&
+                LifeTime.TEN_MINUTES.equals(paste.getLifeTime()) &&
                 hash_code.toString().equals(paste.getHashCode());
     }
 

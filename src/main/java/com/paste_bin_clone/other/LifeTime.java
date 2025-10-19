@@ -4,8 +4,6 @@ import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Getter
 public enum LifeTime {
@@ -30,14 +28,6 @@ public enum LifeTime {
     LifeTime(Integer minutes, String description) {
         this.minutes = minutes;
         this.description = description;
-    }
-
-    private static final Map<LifeTime, String> lifeTimesList =
-            Arrays.stream(values())
-                    .collect(Collectors.toMap(el->el, e -> e.description));
-
-    public static Map<LifeTime, String> getLifTimes() {
-        return lifeTimesList;
     }
 
     public static List<LifeTime> getAll() {

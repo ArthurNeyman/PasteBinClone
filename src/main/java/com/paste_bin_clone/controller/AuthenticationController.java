@@ -4,10 +4,10 @@ import com.paste_bin_clone.dto.AuthenticationRequestDTO;
 import com.paste_bin_clone.dto.AuthenticationResponseDTO;
 import com.paste_bin_clone.dto.UserDTO;
 import com.paste_bin_clone.services.AuthenticationService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,28 +18,28 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "auth")
 @RequiredArgsConstructor
-@Api(tags = "Authentication")
+@Tag(name = "Authentication", description = "API для аутентификации и регистрации")
 public class AuthenticationController extends CommonController {
 
     private final AuthenticationService authenticationService;
 
     @PostMapping("/login")
-    @ApiOperation("User authentication")
+    @Operation(summary = "Аутентификация пользователя", description = "Вход в систему с email и паролем")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Successfully authenticated", response = AuthenticationResponseDTO.class),
-        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
-        @ApiResponse(code = 401, message = "Invalid credentials", response = ErrorResponse.class)
+        @ApiResponse(responseCode  = "200", description = "Successfully authenticated"),
+        @ApiResponse(responseCode  = "400", description = "Bad request"),
+        @ApiResponse(responseCode  = "401", description = "Invalid credentials")
     })
     public ResponseEntity<AuthenticationResponseDTO> login(@RequestBody AuthenticationRequestDTO requestDTO) {
         return ResponseEntity.ok(authenticationService.login(requestDTO));
     }
 
     @PostMapping("/registration")
-    @ApiOperation("User registration")
+    @Operation(summary = "Регистрация пользователя", description = "Создание нового аккаунта")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Successfully registered", response = AuthenticationResponseDTO.class),
-        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
-        @ApiResponse(code = 409, message = "User already exists", response = ErrorResponse.class)
+        @ApiResponse(responseCode = "200", description = "Successfully registered"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "409", description = "User already exists")
     })
     public ResponseEntity<AuthenticationResponseDTO> registration(@RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(authenticationService.registration(userDTO));

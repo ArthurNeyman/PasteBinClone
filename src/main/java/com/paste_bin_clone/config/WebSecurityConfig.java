@@ -27,7 +27,18 @@ public class WebSecurityConfig {
     private static final String USER_ENDPOINT = "/user/**";
     private static final String AUTH_ENDPOINT = "/auth/**";
     private static final String PASTE_ENDPOINT = "/paste/**";
-    private static final String SWAGGER_ENDPOINT = "/swagger-ui/**";
+
+    private static final String[] SWAGGER_WHITELIST = {
+        "/swagger-ui/**",
+        "/swagger-ui.html",
+        "/v3/api-docs/**",
+        "/api-docs/**",
+        "/swagger-resources/**",
+        "/swagger-resources",
+        "/configuration/ui",
+        "/configuration/security",
+        "/webjars/**"
+    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -36,9 +47,12 @@ public class WebSecurityConfig {
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(
                 authz ->
-                    authz.requestMatchers(USER_ENDPOINT).hasAnyAuthority("USER", "ADMIN")
+                    authz
+                        .requestMatchers(SWAGGER_WHITELIST).permitAll()
+                        .requestMatchers(AUTH_ENDPOINT,PASTE_ENDPOINT).permitAll()
+                        .requestMatchers(USER_ENDPOINT).hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers(ADMIN_ENDPOINT).hasAuthority("ADMIN")
-                        .requestMatchers(AUTH_ENDPOINT, PASTE_ENDPOINT,SWAGGER_ENDPOINT).permitAll()
+
                         .anyRequest().authenticated())
             .sessionManagement(
                 session ->

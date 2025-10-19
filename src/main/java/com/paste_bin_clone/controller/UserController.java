@@ -5,9 +5,9 @@ import com.paste_bin_clone.dto.PasteDTO;
 import com.paste_bin_clone.dto.UserDTO;
 import com.paste_bin_clone.services.PasteService;
 import com.paste_bin_clone.services.UserService;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,25 +30,25 @@ public class UserController extends CommonController {
     private final UserService userService;
 
     @GetMapping("/pastes")
-    @ApiOperation("Get current user's pastes")
+    @Operation(summary = "Get current user's pastes")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Successfully", response = PasteDTO.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Access denied", response = ErrorResponse.class)
+        @ApiResponse(responseCode = "200", description = "Successfully"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Access denied")
     })
     public ResponseEntity<List<PasteDTO>> getPastes() {
         return ResponseEntity.ok(userService.getPastes(getUser()));
     }
 
     @PostMapping("/pastes/{hashCode}")
-    @ApiOperation("Update paste")
+    @Operation(summary = "Update paste")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Paste successfully updated", response = PasteDTO.class),
-        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Access denied", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Paste not found", response = ErrorResponse.class)
+        @ApiResponse(responseCode = "200", description = "Paste successfully updated"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Access denied"),
+        @ApiResponse(responseCode = "404", description = "Paste not found")
     })
     public ResponseEntity<PasteDTO> updatePaste(@PathVariable String hashCode,
                                                 @RequestBody PasteDTO pasteDTO) {
@@ -56,13 +56,13 @@ public class UserController extends CommonController {
     }
 
     @DeleteMapping("/pastes/{hashCode}")
-    @ApiOperation("Delete paste by hashCode")
+    @Operation(summary = "Delete paste by hashCode")
     @ApiResponses({
-        @ApiResponse(code = 204, message = "Successfully deleted"),
-        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Access denied", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Paste not found", response = ErrorResponse.class)
+        @ApiResponse(responseCode = "204", description = "Successfully deleted"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Access denied"),
+        @ApiResponse(responseCode = "404", description = "Paste not found")
     })
     public ResponseEntity<Void> deletePaste(@PathVariable String hashCode) {
         pasteService.deleteByHashCode(hashCode, getUser());
@@ -70,36 +70,36 @@ public class UserController extends CommonController {
     }
 
     @PostMapping("/comments")
-    @ApiOperation("Add comment to paste")
+    @Operation(summary = "Add comment to paste")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Comment successfully added", response = CommentDTO.class),
-        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Paste not found", response = ErrorResponse.class)
+        @ApiResponse(responseCode = "200", description = "Comment successfully added"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Paste not found")
     })
     public ResponseEntity<CommentDTO> addComment(@RequestParam Long pasteId, @RequestParam String text) {
         return ResponseEntity.ok(pasteService.addComment(pasteId, text, getUser()));
     }
 
     @GetMapping("/comments")
-    @ApiOperation("Get user`s comment")
+    @Operation(summary = "Get user`s comment")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Comment successfully added", response = CommentDTO.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Paste not found", response = ErrorResponse.class)
+        @ApiResponse(responseCode = "200", description = "Comment successfully added"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Paste not found")
     })
     public ResponseEntity<List<CommentDTO>> getUserComments() {
         return ResponseEntity.ok(userService.getUserComments(getUser()));
     }
 
     @DeleteMapping("/comments/{commentId}")
-    @ApiOperation("Delete comment by commentId")
+    @Operation(summary = "Delete comment by commentId")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Comment successfully deleted", response = CommentDTO.class),
-        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Paste not found", response = ErrorResponse.class)
+        @ApiResponse(responseCode = "200", description = "Comment successfully deleted"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Paste not found")
     })
     public ResponseEntity<CommentDTO> deleteComment(@PathVariable Long commentId) {
         userService.deleteComment(commentId, getUser());
@@ -107,11 +107,11 @@ public class UserController extends CommonController {
     }
 
     @PostMapping("/profile")
-    @ApiOperation("Update user profile")
+    @Operation(summary = "Update user profile")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Profile successfully updated", response = UserDTO.class),
-        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        @ApiResponse(responseCode = "200", description = "Profile successfully updated"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     public ResponseEntity<UserDTO> updateProfile(@RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(userService.updateProfile(userDTO, getUser()));

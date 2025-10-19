@@ -5,9 +5,9 @@ import com.paste_bin_clone.dto.PasteSaveDTO;
 import com.paste_bin_clone.other.AccessLevel;
 import com.paste_bin_clone.other.LifeTime;
 import com.paste_bin_clone.services.PasteService;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,61 +27,61 @@ public class PasteController extends CommonController {
     private final PasteService pasteService;
 
     @GetMapping()
-    @ApiOperation("Get last 10 public pastes")
+    @Operation(summary = "Get last 10 public pastes")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Success", response = PasteDTO.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
+        @ApiResponse(responseCode = "200", description = "Success"),
+        @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<List<PasteDTO>> get() {
         return ResponseEntity.ok(pasteService.getLastTenPastes());
     }
 
     @PostMapping()
-    @ApiOperation("Create new paste")
+    @Operation(summary = "Create new paste")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Paste added success", response = PasteDTO.class),
-        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
+        @ApiResponse(responseCode = "200", description = "Paste added success"),
+        @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<PasteDTO> add(@RequestBody PasteSaveDTO pasteDTO) {
         return ResponseEntity.ok(pasteService.savePaste(pasteDTO, getUser()));
     }
 
     @GetMapping("/{hashCode}")
-    @ApiOperation("Get paste by hash code")
+    @Operation(summary = "Get paste by hash code")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "success", response = PasteDTO.class),
-        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
-        @ApiResponse(code = 404, message = "Paste not found", response = ErrorResponse.class)
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "404", description = "Paste not found")
     })
     public ResponseEntity<PasteDTO> getByHashCode(@PathVariable String hashCode) {
         return ResponseEntity.ok(pasteService.getPasteByHashCode(hashCode));
     }
 
     @GetMapping("/search/{text}")
-    @ApiOperation("Search pastes by text in name or description")
+    @Operation(summary = "Search pastes by text in name or description")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "success", response = PasteDTO.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<List<PasteDTO>> find(@PathVariable String text) {
         return ResponseEntity.ok(pasteService.searchPastes(text));
     }
 
     @GetMapping("/lifetime-options")
-    @ApiOperation("Get list of available lifetime options")
+    @Operation(summary = "Get list of available lifetime options")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "success", response = LifeTime.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<List<LifeTime>> getLifetimeOptions() {
         return ResponseEntity.ok(LifeTime.getAll());
     }
 
     @GetMapping("/access-options")
-    @ApiOperation("Get list of available access level options")
+    @Operation(summary = "Get list of available access level options")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "success", response = AccessLevel.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Bad request", response = ErrorResponse.class),
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<List<AccessLevel>> getAccessLevelOptions() {
         return ResponseEntity.ok(AccessLevel.getAll());

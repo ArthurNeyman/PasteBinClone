@@ -18,7 +18,7 @@ public class PasteDTO extends PasteSaveDTO {
         this.setName(pasteSaveDTO.getName());
         this.setDescription(pasteSaveDTO.getDescription());
         this.setAccess(pasteSaveDTO.getAccess());
-        this.setLifetime(pasteSaveDTO.getLifetime());
+        this.setLifeTime(pasteSaveDTO.getLifeTime());
         this.setId(pasteSaveDTO.getId());
     }
 
