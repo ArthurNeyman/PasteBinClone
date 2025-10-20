@@ -1,0 +1,13 @@
+name: pull
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+      - closed
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    steps:
+      -
