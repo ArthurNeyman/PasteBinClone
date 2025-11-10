@@ -1,0 +1,14 @@
+name: pull-request #имя
+on: #при
+  pull_request: #пул ревквесте
+    branches: #на ветку
+      - master
+    types:
+      - opened
+      - closed
+jobs: #делай
+  run_tests: #имя джобы
+    runs-on: ubuntu-latest #запустить на операционке
+    steps: #Шаги
+      - name : Display some text
+        run :  echo "first workflow"
